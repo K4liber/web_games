@@ -1,11 +1,19 @@
 import { Injectable } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { Socket, SocketIoConfig } from 'ngx-socket-io';
 
-@Injectable()
-export class SocketService {
-    socket: Socket
+const config: SocketIoConfig = { 
+    url: 'http://127.0.0.1:8000', 
+    options: {
+        autoConnect: false
+    } 
+};
 
-    constructor(socket: Socket) {
-        this.socket = socket
+@Injectable({
+    providedIn: 'root'
+})
+export class SocketService extends Socket {
+
+    constructor() {
+        super(config)
     }
 }

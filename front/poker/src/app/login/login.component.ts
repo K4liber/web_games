@@ -18,15 +18,14 @@ import { SocketService } from '../app-socket.service';
 export class LoginComponent implements OnInit {
   username: string = ''
   isLogged: boolean = false;
-  socket: Socket
 
   @Output() usernameChanged = new EventEmitter<string>();
   
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    socketSerive: SocketService
+    private socket: SocketService
   ) {
-    this.socket = socketSerive.socket
+
   }
 
   ngOnInit(): void {
