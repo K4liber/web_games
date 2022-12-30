@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
+import { SocketService } from '../app-socket.service';
 
 @Component({
   selector: 'app-login',
@@ -17,12 +18,16 @@ import { Socket } from 'ngx-socket-io';
 export class LoginComponent implements OnInit {
   username: string = ''
   isLogged: boolean = false;
+  socket: Socket
+
   @Output() usernameChanged = new EventEmitter<string>();
   
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private socket: Socket
-  ) { }
+    socketSerive: SocketService
+  ) {
+    this.socket = socketSerive.socket
+  }
 
   ngOnInit(): void {
     this.socket.on('connect', () => {

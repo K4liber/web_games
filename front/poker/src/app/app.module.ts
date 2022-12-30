@@ -8,6 +8,7 @@ import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
 import { BluffModule } from './bluff/bluff.module';
+import { SocketService } from './app-socket.service';
 
 const config: SocketIoConfig = { 
   url: 'http://127.0.0.1:8000', 
@@ -29,7 +30,9 @@ const config: SocketIoConfig = {
     FormsModule,
     BluffModule
   ],
-  providers: [],
+  providers: [
+    SocketService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
