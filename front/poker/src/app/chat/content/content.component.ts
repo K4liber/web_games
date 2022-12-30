@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { SocketService } from 'src/app/app-socket.service';
 import { Message } from '../types';
 
 @Component({
@@ -18,7 +18,7 @@ export class ContentComponent implements OnInit {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private socket: Socket
+    private socket: SocketService
   ) { }
 
   ngOnInit(): void {

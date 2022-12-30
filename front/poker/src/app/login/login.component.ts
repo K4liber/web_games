@@ -1,5 +1,4 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
 import { SocketService } from '../app-socket.service';
 
 @Component({
@@ -22,7 +21,6 @@ export class LoginComponent implements OnInit {
   @Output() usernameChanged = new EventEmitter<string>();
   
   constructor(
-    private changeDetectorRef: ChangeDetectorRef,
     private socket: SocketService
   ) {
 

@@ -1,6 +1,5 @@
-import { ThisReceiver } from '@angular/compiler';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { Socket } from 'ngx-socket-io';
+import { SocketService } from 'src/app/app-socket.service';
 
 @Component({
   selector: 'bluff-content',
@@ -34,7 +33,7 @@ export class ContentComponent implements OnInit {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private socket: Socket
+    private socket: SocketService
   ) { }
 
   ngOnInit(): void {
