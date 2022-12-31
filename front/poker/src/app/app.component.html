@@ -4,13 +4,13 @@
     (usernameChanged)="usernameChanged($event)"
   ></app-login>
   <ng-container *ngIf="isLogged">
-    <chat-content
-      [username]="username"
-    ></chat-content>
     <bluff-content
       [username]="username"
       (myTurn)="myTurn($event)"
     >
     </bluff-content>
+    <chat-content
+      [username]="username"
+    ></chat-content>
   </ng-container>
 </div>

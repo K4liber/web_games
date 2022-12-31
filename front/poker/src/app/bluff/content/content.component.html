@@ -22,6 +22,12 @@
         </div>
     </ng-container>
     <div 
+        class="hand-title"
+        *ngIf="isPlayerReady && hand.length !== 0"
+    >
+        Your hand:
+    </div>
+    <div 
         class="hand"
         *ngIf="isPlayerReady && hand.length !== 0"
     >
@@ -37,27 +43,26 @@
             Your turn!
         </div>
         <div *ngIf="possibleGuesses.length">
-            <div>
-                Possible guesses:
-            </div>
             <select
                 [(ngModel)]="selectedSequence"
             >
+                <option value="" disabled selected hidden>Choose a sequence</option>
                 <option 
                     *ngFor="let guess of possibleGuesses" 
                     [ngValue]="guess"
                 >
                     {{ guess }}
-            </option>
+                </option>
             </select>
-            <button
-                (click)="onSelect()"
-            >
-                Select
-            </button>
         </div>
         <button
-            *ngIf="!isStart"
+            (click)="onSelect()"
+            [disabled]="selectedSequence === ''"
+        >
+            Guess
+        </button>
+        <button
+            [disabled]="isStart"
             (click)="onCheck()"
         >
             Check
