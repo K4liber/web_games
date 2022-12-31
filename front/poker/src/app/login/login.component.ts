@@ -8,8 +8,10 @@ import { SocketService } from '../app-socket.service';
     `
     .main {
       background-color: grey;
-      padding: 5px;
-      text-align: right;
+    }
+
+    .element {
+      margin: 5px;
     }
     `
   ]
