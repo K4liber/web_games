@@ -8,7 +8,13 @@ from bluff.game import Game
 app = Flask(__name__)
 _allowed_origins = [
     "http://localhost",
-    "http://localhost:4200"
+    "https://localhost",
+    "http://localhost:4200",
+    "https://localhost:4200",
+    "http://192.168.0.164",
+    "https://192.168.0.164",
+    "http://31.178.189.125",
+    "https://31.178.189.125/",
 ]
 socket = SocketIO(app, cors_allowed_origins=_allowed_origins)
 

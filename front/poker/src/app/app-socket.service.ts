@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Socket, SocketIoConfig } from 'ngx-socket-io';
 
 const config: SocketIoConfig = { 
-    url: 'http://127.0.0.1:8000', 
+    url: 'http://31.178.189.125:80', 
     options: {
-        autoConnect: false
+        autoConnect: false,
+        path: '/websocket/socket.io'
     } 
 };
 
