@@ -30,7 +30,7 @@ socket = SocketIO(app, cors_allowed_origins=_allowed_origins)
 
 @dataclass(frozen=True)
 class _Const:
-    MAX_PLAYERS = 4
+    MAX_PLAYERS = 6
     MIN_PLAYERS = 2
 
 

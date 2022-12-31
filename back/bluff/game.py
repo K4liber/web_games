@@ -127,11 +127,15 @@ class Game:
     def players_usernames(self) -> list[str]:
         return [player.username for player in self._players]
 
+    @property
+    def max_cards(self) -> int:
+        return min(5, int(24 / len(self._players)))
+
     def finish_round(self, loser_player: Player):
         self._player_to_number_of_cards[loser_player] = \
             self._player_to_number_of_cards[loser_player] + 1
 
-        if self._player_to_number_of_cards[loser_player] > 5:
+        if self._player_to_number_of_cards[loser_player] > self.max_cards:
             self.remove_player(loser_player.sid)
         else:
             player_index = self._players.index(loser_player)
@@ -189,7 +193,7 @@ class Game:
 
     def start(self):
         self._player_to_number_of_cards = {
-            player: 2 for player in self._players
+            player: 1 for player in self._players
         }
         self._is_started = True
         self._current_player = 0
