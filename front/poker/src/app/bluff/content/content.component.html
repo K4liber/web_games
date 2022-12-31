@@ -57,7 +57,7 @@
         </div>
         <button
             (click)="onSelect()"
-            [disabled]="selectedSequence === ''"
+            [disabled]="selectedSequence.trim() === ''"
         >
             Guess
         </button>

@@ -87,6 +87,9 @@ def start_bluff():
         emit('error', 'Minimum {CONST.MIN_PLAYERS} players are needed to play.', room=request.sid)
 
 def deal_cards():
+    _logger.info(f'Dealing cards between following players: \
+        {game.players_usernames}')
+        
     for player in game.deal_cards():
         emit('hand', list(player.cards), room=player.sid)
 

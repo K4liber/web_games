@@ -206,7 +206,8 @@ class Game:
     def deal_cards(self) -> list[Player]:
         self._cards_deck = self._shuffle()
 
-        for player, number_of_cards in self._player_to_number_of_cards.items():
+        for player in self._players:
+            number_of_cards = self._player_to_number_of_cards[player]
             player.cards = set()
 
             for _ in range(number_of_cards):
