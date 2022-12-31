@@ -137,10 +137,8 @@ class Game:
 
         if self._player_to_number_of_cards[loser_player] > self.max_cards:
             self.remove_player(loser_player.sid)
-        else:
-            player_index = self._players.index(loser_player)
-            self._current_player = (player_index + 1) % len(self._players)
-        
+
+        self._current_player = (self._current_player + 1) % len(self._players)
         self._current_guess = None
 
     def get_player_by_sid(self, sid: str) -> Optional[Player]:
