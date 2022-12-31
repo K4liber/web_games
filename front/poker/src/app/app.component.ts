@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -9,9 +10,7 @@ export class AppComponent implements OnInit {
   isLogged: boolean = false;
   username: string = '';
 
-  constructor() {
-   
-  }
+  constructor(private titleService: Title) {}
 
   ngOnInit() {
     document.body.className = "main";
@@ -25,5 +24,13 @@ export class AppComponent implements OnInit {
     }
     
     this.username = username
+  }
+
+  myTurn(isMyTurn: boolean) {
+    if (isMyTurn) {
+      this.titleService.setTitle('* Poker')
+    } else {
+      this.titleService.setTitle('Poker')
+    }
   }
 }

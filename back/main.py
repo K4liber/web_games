@@ -1,10 +1,19 @@
 from dataclasses import dataclass
+import logging
+import sys
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
 from bluff.game import Game
 
-
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(levelname)-8s %(asctime)s] %(message)s (%(name)s)",
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
+_logger = logging.getLogger(__name__)
 app = Flask(__name__)
 _allowed_origins = [
     "http://localhost",
@@ -26,31 +35,34 @@ class _Const:
 
 
 CONST = _Const()
-users = set()
+sid_to_username = dict()
 game = Game()
 
 
 @socket.on('connect')
 def connect():
-    users.add(request.sid)
-    print("[CLIENT CONNECTED]:", request.sid)
+    _logger.info(f"[CONNECT]: {request.sid}")
+
+
+@socket.on('username')
+def username(username: str):
+    _logger.info(f"[USERNAME]: {request.sid} {username}")
+    sid_to_username[request.sid] = username
 
 
 @socket.on('ready_for_bluff')
 def ready_for_bluff(username):
     global game
+    current_number_of_players = len(game.players)
 
-    if len(game.players) == CONST.MAX_PLAYERS:
-        print('To much players!')
+    if current_number_of_players == CONST.MAX_PLAYERS:
+        _logger.info('To much players!')
     else:
         game.add_player(request.sid, username)
-        print(f'Adding player: {request.sid}')
+        _logger.info(f'Adding player: {request.sid}')
 
-        if len(game.players) >= CONST.MIN_PLAYERS:
-            print(f'Emitting bluff_ready')
-
-            for player in game.players:
-                emit('bluff_ready', True, room=player.sid)
+        for player in game.players:
+            emit('ready_players', game.players_usernames, room=player.sid)
 
 
 @socket.on('start_bluff')
@@ -64,11 +76,11 @@ def start_bluff():
     if len(game.players) >= CONST.MIN_PLAYERS:
         game.start()
         players_str = '\n'.join([str(player) for player in game.players])
-        print('Starting game between:\n' + players_str + '\n')
+        _logger.info('Starting game between:\n' + players_str + '\n')
         deal_cards()
 
         for player in game.players:
-            emit('progress', f'Starting game between {len(game.players)} players! \
+            emit('progress', f'Starting game between {game.players_usernames}. \
                  There are {game.number_of_cards} cards in play currently!', 
                 room=player.sid)
     else:
@@ -78,7 +90,7 @@ def deal_cards():
     for player in game.deal_cards():
         emit('hand', list(player.cards), room=player.sid)
 
-    print(f'{game.current_player} turn!')
+    _logger.info(f'{game.current_player} turn!')
     emit('possible_guesses', [game.possible_guesses, True], room=game.current_player.sid)
 
 
@@ -124,24 +136,33 @@ def selected(selected_guess):
     for player in game.players:
         emit('progress', info, room=player.sid)
 
-    print(f'{game.current_player} turn!')
+    _logger.info(f'{game.current_player} turn!')
     emit('possible_guesses', [game.possible_guesses, False], room=game.current_player.sid)
 
 
 @socket.on('disconnect')
 def disconnect():
     global game
-    print("[CLIENT DISCONNECTED]:", request.sid)
+    _logger.info(f"[DISCONNECT]: {request.sid}")
+
+    if request.sid not in sid_to_username:
+        _logger.warning(f'Unknown user: {request.sid}')
+        return
+
     disconnected_player = game.get_player_by_sid(request.sid)
 
     if disconnected_player:
         
         for player in game.players:
-            emit('bluff_ready', False, room=player.sid)
+            emit('ready_players', [], room=player.sid)
+        
+        _logger.info(f'Reseting game, {sid_to_username[request.sid]} have left.')
+        game.reset()
 
-        game.remove_player(request.sid)
-        game.stop()
-        print(f'Removing player: {request.sid}')
+    for sid in sid_to_username.keys():
+        emit('player_disconnected', sid_to_username[request.sid], room=sid)
+
+    del sid_to_username[request.sid]
 
 
 @socket.on('notify')

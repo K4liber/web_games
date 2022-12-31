@@ -50,6 +50,7 @@ export class LoginComponent implements OnInit {
   login() {
     if (this.username.trim().length > 1){
         this.socket.connect();
+        this.socket.emit('username', this.username)
     } else {
         alert("Username should contain at least 2 signs!");
     }

@@ -9,6 +9,7 @@
     ></chat-content>
     <bluff-content
       [username]="username"
+      (myTurn)="myTurn($event)"
     >
     </bluff-content>
   </ng-container>

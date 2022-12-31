@@ -6,6 +6,9 @@
         I am ready to play Bluff!
     </button>
     <ng-container *ngIf="isPlayerReady && hand.length === 0">
+        <div>
+            Following players are ready: {{ players }}
+        </div>
         <button
             *ngIf="isGameReady"
             (click)="start()"
@@ -26,15 +29,10 @@
             <img [src]="getCardImageSrc(card)" alt="image">
         </div>
     </div>
-    <ng-container *ngIf="progress.length">
-        <div *ngFor="let progressStep of progress">
-            {{ progressStep }}
-        </div>
-    </ng-container>
-    <div *ngIf="possibleGuesses === null && progress.length">
+    <div *ngIf="possibleGuesses === null && progress.length" class="main-info">
         Wait for your turn ...
     </div>
-    <div *ngIf="possibleGuesses !== null">
+    <div *ngIf="possibleGuesses !== null" class="main-info">
         <div>
             Your turn!
         </div>
@@ -64,5 +62,13 @@
         >
             Check
         </button>
+    </div>
+    <div class="messages" *ngIf="progress.length">
+        <p 
+            *ngFor="let progressStep of progress; let i = index"
+            [ngClass]="i === 0 ? 'last-info' : 'normal-info'"
+        >
+            {{ progressStep }}
+        </p>
     </div>
 </div>

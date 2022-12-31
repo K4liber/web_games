@@ -2,10 +2,14 @@ import copy
 from dataclasses import dataclass
 import hashlib
 import itertools
+import logging
 import random
 from typing import Optional
+from bluff.check import check
+from bluff.sequence import SEQUENCE
 
 
+_logger = logging.getLogger(__name__)
 _colors = [
     'spades',
     'clubs',
@@ -22,266 +26,48 @@ _figure_int_to_str.update({
 _all_cards = list(itertools.product(list(_figure_int_to_str.values()), _colors))
 _sequences_hierarchy = []
 _sequences_hierarchy += [
-    f'High card {_figure_int_to_str[figure]}' for figure in range(9, 15)
+    f'{SEQUENCE.HIGH_CARD} {_figure_int_to_str[figure]}' for figure in range(9, 15)
 ]
 _sequences_hierarchy += [
-    f'One pair {_figure_int_to_str[figure]}' for figure in range(9, 15)
+    f'{SEQUENCE.ONE_PAIR} {_figure_int_to_str[figure]}' for figure in range(9, 15)
 ]
 _sequences_hierarchy += [
-    f'Two pair {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
+    f'{SEQUENCE.TWO_PAIR} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
         for figure_2 in range(9, 15)
     if figure > figure_2
 ]
 _sequences_hierarchy += [
-    'Small straight',
-    'Big straight'
+    f'{SEQUENCE.SMALL_STRAIGHT}',
+    f'{SEQUENCE.BIG_STRAIGHT}'
 ]
 _sequences_hierarchy += [
-    f'Three of a kind {_figure_int_to_str[figure]}' for figure in range(9, 15)
+    f'{SEQUENCE.THREE_OF_A_KIND} {_figure_int_to_str[figure]}' for figure in range(9, 15)
 ]
 _sequences_hierarchy += [
-    f'Full 3x2 {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
+    f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
         for figure_2 in range(9, 15)
     if figure > figure_2
 ]
 _sequences_hierarchy += [
-    f'Full 3x2 {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
+    f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
         for figure_2 in range(9, 15)
     if figure < figure_2
 ]
 _sequences_hierarchy += [
-    f'Color {color}' for color in _colors
+    f'{SEQUENCE.COLOR} {color}' for color in _colors
 ]
 _sequences_hierarchy += [
-    f'Four of a kind {_figure_int_to_str[figure]}' for figure in range(9, 15)
+    f'{SEQUENCE.FOUR_OF_A_KIND} {_figure_int_to_str[figure]}' for figure in range(9, 15)
 ]
 _sequences_hierarchy += [
-    f'Small poker {color}' for color in _colors
+    f'{SEQUENCE.SMALL_POKER} {color}' for color in _colors
 ]
 _sequences_hierarchy += [
-    f'Big poker {color}' for color in _colors
+    f'{SEQUENCE.BIG_POKER} {color}' for color in _colors
 ]
-# TODO finish the hierarchy and is_sequence_in_cards function
-
-
-def is_sequence_in_cards(
-    sequence: str,
-    cards: list[tuple[str, str]]
-) -> bool:
-    print(f'Checking sequence: {sequence}')
-    cards_str = "\n".join([str(card) for card in cards])
-    print('Available cards: \n' + cards_str + '\n')
-
-    if sequence.startswith('High card'):
-        high_card = sequence.removeprefix('High card ')
-
-        for card in cards:
-            figure = card[0]
-
-            if high_card == figure:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('One pair'):
-        pair = sequence.removeprefix('One pair ')
-        number_of_cards = 0
-
-        for card in cards:
-            figure = card[0]
-
-            if pair == figure:
-                number_of_cards += 1
-            
-            if number_of_cards == 2:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('Two pair'):
-        pair = sequence.removeprefix('Two pair ')
-        first_figure, second_figure = pair.split(';')
-        first_figure_count = 0
-        second_figure_count = 0
-
-        for card in cards:
-            figure = card[0]
-
-            if first_figure == figure:
-                first_figure_count += 1
-            
-            elif second_figure == figure:
-                second_figure_count += 1
-
-            if first_figure_count >= 2 and second_figure_count >= 2:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence == 'Small straight':
-        _needed_figure_to_count = {
-            '9': 0,
-            '10': 0,
-            'jack': 0,
-            'queen': 0,
-            'king': 0
-        }
-
-        for card in cards:
-            figure = card[0]
-
-            if figure in _needed_figure_to_count:
-                _needed_figure_to_count[figure] += 1
-            
-        if all(list(_needed_figure_to_count.values())):
-            print(f'Sequence {sequence} is in cards!')
-            return True
-
-        return False
-    
-    if sequence == 'Big straight':
-        _needed_figure_to_count = {
-            '10': 0,
-            'jack': 0,
-            'queen': 0,
-            'king': 0,
-            'ace': 0
-        }
-
-        for card in cards:
-            figure = card[0]
-
-            if figure in _needed_figure_to_count:
-                _needed_figure_to_count[figure] += 1
-            
-        if all(list(_needed_figure_to_count.values())):
-            print(f'Sequence {sequence} is in cards!')
-            return True
-
-        return False
-
-    if sequence.startswith('Three of a kind'):
-        needed_figure = sequence.removeprefix('Three of a kind ')
-        number_of_cards = 0
-
-        for card in cards:
-            figure = card[0]
-
-            if needed_figure == figure:
-                number_of_cards += 1
-            
-            if number_of_cards == 3:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('Full 3x2'):
-        pair = sequence.removeprefix('Full 3x2 ')
-        first_figure, second_figure = pair.split(';')
-        first_figure_count = 0
-        second_figure_count = 0
-
-        for card in cards:
-            figure = card[0]
-
-            if first_figure == figure:
-                first_figure_count += 1
-            
-            elif second_figure == figure:
-                second_figure_count += 1
-
-            if first_figure_count >= 3 and second_figure_count >= 2:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('Color'):
-        needed_color = sequence.removeprefix('Color ')
-        number_of_cards = 0
-
-        for card in cards:
-            color = card[1]
-
-            if needed_color == color:
-                number_of_cards += 1
-            
-            if number_of_cards == 5:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('Four of a kind'):
-        needed_figure = sequence.removeprefix('Four of a kind ')
-        number_of_cards = 0
-
-        for card in cards:
-            figure = card[0]
-
-            if needed_figure == figure:
-                number_of_cards += 1
-            
-            if number_of_cards == 4:
-                print(f'Sequence {sequence} is in cards!')
-                return True
-        
-        return False
-
-    if sequence.startswith('Small poker'):
-        needed_color = sequence.removeprefix('Small poker ')
-        _needed_figure_to_count = {
-            '9': 0,
-            '10': 0,
-            'jack': 0,
-            'queen': 0,
-            'king': 0
-        }
-
-        for card in cards:
-            figure = card[0]
-            color = card[1]
-
-            if figure in _needed_figure_to_count and color == needed_color:
-                _needed_figure_to_count[figure] += 1
-            
-        if all(list(_needed_figure_to_count.values())):
-            print(f'Sequence {sequence} is in cards!')
-            return True
-
-        return False
-    
-    if sequence.startswith('Big poker'):
-        needed_color = sequence.removeprefix('Big poker ')
-        _needed_figure_to_count = {
-            '10': 0,
-            'jack': 0,
-            'queen': 0,
-            'king': 0,
-            'ace': 0
-        }
-
-        for card in cards:
-            figure = card[0]
-            color = card[1]
-
-            if figure in _needed_figure_to_count and color == needed_color:
-                _needed_figure_to_count[figure] += 1
-            
-        if all(list(_needed_figure_to_count.values())):
-            print(f'Sequence {sequence} is in cards!')
-            return True
-
-        return False
-
-    return False
 
 
 @dataclass()
@@ -337,6 +123,10 @@ class Game:
         
         return all_cards
 
+    @property
+    def players_usernames(self) -> list[str]:
+        return [player.username for player in self._players]
+
     def finish_round(self, loser_player: Player):
         self._player_to_number_of_cards[loser_player] = \
             self._player_to_number_of_cards[loser_player] + 1
@@ -367,16 +157,13 @@ class Game:
         for player in self._players:
             all_cards_in_play.update(player.cards)
 
-        return is_sequence_in_cards(
+        return check(
             _sequences_hierarchy[self._current_guess], 
             all_cards_in_play
         )
 
     def add_player(self, sid: str, username: str):
         self._players.append(Player(sid=sid, username=username, cards=set()))
-
-    def stop(self):
-        self._is_started = False
 
     def remove_player(self, player_sid: str):
         player = self.get_player_by_sid(player_sid)

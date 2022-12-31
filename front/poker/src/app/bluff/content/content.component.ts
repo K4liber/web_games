@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
 
 @Component({
@@ -16,12 +16,29 @@ import { SocketService } from 'src/app/app-socket.service';
     .card {
       padding: 5px;
     }
+
+    .main-info {
+      background-color: rgb(211,211,211);
+      font-size: 1.2em;
+      min-height: 100px;
+      text-align: center;
+    }
+
+    .last-info {
+      font-weight: bold;
+      font-color: white;
+    }
+
+    .normal-info {
+      color: rgb(50, 50, 50);
+    }
     `
   ]
 })
 export class ContentComponent implements OnInit {
   
   @Input() username: string = ''
+  @Output() myTurn = new EventEmitter<boolean>();
 
   isGameReady: boolean = false;
   isStart: boolean = false;
@@ -30,6 +47,7 @@ export class ContentComponent implements OnInit {
   possibleGuesses: string[] | null = null
   selectedSequence: string = ''
   progress: string[] = []
+  players: string[] = []
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -37,8 +55,8 @@ export class ContentComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.socket.on('bluff_ready', (isReady: boolean) => {
-      this.onBluffReady(isReady)
+    this.socket.on('ready_players', (players: string[]) => {
+      this.onReadyPlayers(players)
     })
     this.socket.on('error', (errorMessage: string) => {
       this.onError(errorMessage)
@@ -48,11 +66,16 @@ export class ContentComponent implements OnInit {
     })
     this.socket.on('possible_guesses', (possibleGuesses: [string[], boolean]) => {
       this.possibleGuesses = possibleGuesses[0]
+
+      if (this.possibleGuesses !== null) {
+        this.myTurn.emit(true)
+      }
+
       this.isStart = possibleGuesses[1]
       this.changeDetectorRef.detectChanges()
     })
     this.socket.on('progress', (progress: string) => {
-      this.progress.push(progress)
+      this.progress.unshift(progress)
     })
     this.socket.on('finished', () => {
       this.isPlayerReady = false
@@ -62,12 +85,32 @@ export class ContentComponent implements OnInit {
     })
   }
 
+  stopGame() {
+    this.isGameReady = false;
+    this.isStart = false;
+    this.isPlayerReady = false;
+    this.hand = []
+    this.possibleGuesses = null
+    this.selectedSequence = ''
+    this.progress = []
+    this.players = []
+    this.myTurn.emit(false)
+  }
+
   onError(errorMessage: string) {
     alert(errorMessage)
   }
 
-  onBluffReady(isReady: boolean) {
-    this.isGameReady = isReady
+  onReadyPlayers(players: string[]) {
+    console.log(players)
+
+    if (players.length === 0) {
+      this.stopGame()
+    } else {
+      this.isGameReady = players.length >= 2
+      this.players = players
+    }
+    
     this.changeDetectorRef.detectChanges()
   }
 
@@ -88,12 +131,14 @@ export class ContentComponent implements OnInit {
   onSelect() {
     this.socket.emit('selected', this.selectedSequence)
     this.possibleGuesses = null
+    this.myTurn.emit(false)
     this.changeDetectorRef.detectChanges()
   }
   
   onCheck() {
     this.socket.emit('selected', 'check')
     this.possibleGuesses = null
+    this.myTurn.emit(false)
     this.changeDetectorRef.detectChanges()
   }
 }
