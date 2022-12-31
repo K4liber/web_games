@@ -174,6 +174,7 @@ class Game:
 
         if player:
             self._players.remove(player)
+            del self._player_to_number_of_cards[player]
 
     @property
     def possible_guesses(self):
