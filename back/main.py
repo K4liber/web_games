@@ -88,7 +88,7 @@ def selected(selected_guess):
 
     if selected_guess == 'check':
         is_in = game.check()
-        loser_sid = request.sid if is_in else game.current_player.sid
+        loser_sid = request.sid if is_in else game.previous_player.sid
         loser_player = game.get_player_by_sid(loser_sid)
         game.finish_round(loser_player)
         have_lost = loser_player not in game.players
