@@ -1,0 +1,27 @@
+<div class="main-div">
+    <button 
+        (click)="changeChatHiden()"
+    >{{ changeChatHidenText }}</button>
+    <div *ngIf="!isChatHiden">
+        <div class="messages">
+            <p *ngFor="let message of messages" [ngClass]="message.author === null ? 'center' : ''">
+                {{ message.content }}
+            </p>
+        </div>
+        <input 
+            type="text" 
+            placeholder="Enter message"
+            [(ngModel)]="currentMessage" 
+        >
+        <button 
+            type="submit" 
+            (click)="submitMessage()"
+        >Send</button>
+    </div>
+
+
+
+    <div id="hand">
+
+    </div>
+</div>

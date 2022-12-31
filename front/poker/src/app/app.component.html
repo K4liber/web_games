@@ -1,0 +1,16 @@
+<router-outlet></router-outlet>
+<div class="main">
+  <app-login
+    (usernameChanged)="usernameChanged($event)"
+  ></app-login>
+  <ng-container *ngIf="isLogged">
+    <chat-content
+      [username]="username"
+    ></chat-content>
+    <bluff-content
+      [username]="username"
+      (myTurn)="myTurn($event)"
+    >
+    </bluff-content>
+  </ng-container>
+</div>

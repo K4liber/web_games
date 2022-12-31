@@ -1,0 +1,20 @@
+<div class="main">
+    <div *ngIf="!isLogged">
+        <input 
+            type="text" 
+            placeholder="Enter an username"
+            [(ngModel)]="username" 
+        >
+        <button 
+            type="submit" 
+            (click)="login()"
+        >Login</button>
+    </div>
+    <div *ngIf="isLogged">
+        Hello {{ username }}!
+        <button 
+            type="submit"
+            (click)="logout()"
+        >Logout</button>
+    </div>
+</div>

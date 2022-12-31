@@ -1,0 +1,74 @@
+<div class="main-div">
+    <button 
+        *ngIf="!isPlayerReady"
+        (click)="play()"
+    >
+        I am ready to play Bluff!
+    </button>
+    <ng-container *ngIf="isPlayerReady && hand.length === 0">
+        <div>
+            Following players are ready: {{ players }}
+        </div>
+        <button
+            *ngIf="isGameReady"
+            (click)="start()"
+        >
+            Start a game!
+        </button>
+        <div
+            *ngIf="!isGameReady"
+        >
+            Waiting for players ...
+        </div>
+    </ng-container>
+    <div 
+        class="hand"
+        *ngIf="isPlayerReady && hand.length !== 0"
+    >
+        <div class="card" *ngFor="let card of hand">
+            <img [src]="getCardImageSrc(card)" alt="image">
+        </div>
+    </div>
+    <div *ngIf="possibleGuesses === null && progress.length" class="main-info">
+        Wait for your turn ...
+    </div>
+    <div *ngIf="possibleGuesses !== null" class="main-info">
+        <div>
+            Your turn!
+        </div>
+        <div *ngIf="possibleGuesses.length">
+            <div>
+                Possible guesses:
+            </div>
+            <select
+                [(ngModel)]="selectedSequence"
+            >
+                <option 
+                    *ngFor="let guess of possibleGuesses" 
+                    [ngValue]="guess"
+                >
+                    {{ guess }}
+            </option>
+            </select>
+            <button
+                (click)="onSelect()"
+            >
+                Select
+            </button>
+        </div>
+        <button
+            *ngIf="!isStart"
+            (click)="onCheck()"
+        >
+            Check
+        </button>
+    </div>
+    <div class="messages" *ngIf="progress.length">
+        <p 
+            *ngFor="let progressStep of progress; let i = index"
+            [ngClass]="i === 0 ? 'last-info' : 'normal-info'"
+        >
+            {{ progressStep }}
+        </p>
+    </div>
+</div>

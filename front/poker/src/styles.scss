@@ -1,0 +1,23 @@
+.main {
+    padding: 0;
+    margin: 0;
+    background-color: black;
+}
+
+.main-div {
+    min-width: 300px;
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: grey;
+}
+
+.center {
+    text-align: center;
+}
+
+.messages {
+    width: 500px; 
+    height: 200px;
+    border: 1px solid black; 
+    overflow-y: auto;
+}
