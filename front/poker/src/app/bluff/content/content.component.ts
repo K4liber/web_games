@@ -79,6 +79,7 @@ export class ContentComponent implements OnInit {
       }
 
       this.isStart = possibleGuesses[1]
+      this.selectedSequence = ''
       this.changeDetectorRef.detectChanges()
     })
     this.socket.on('progress', (progress: string) => {

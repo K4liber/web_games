@@ -35,7 +35,7 @@
             <img [src]="getCardImageSrc(card)" alt="image">
         </div>
     </div>
-    <div *ngIf="possibleGuesses === null && progress.length" class="main-info">
+    <div *ngIf="possibleGuesses === null && progress.length && isGameReady" class="main-info">
         Wait for your turn ...
     </div>
     <div *ngIf="possibleGuesses !== null" class="main-info">

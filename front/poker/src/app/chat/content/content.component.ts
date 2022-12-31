@@ -9,7 +9,7 @@ import { Message } from '../types';
 export class ContentComponent implements OnInit {
   @Input() username: string = ''
 
-  isChatHiden: boolean = true;
+  isChatHiden: boolean = false;
   messages: Message[] = [];
   currentMessage: string = '';
 
