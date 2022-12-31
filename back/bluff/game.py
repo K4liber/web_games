@@ -324,6 +324,11 @@ class Game:
         return self._players[self._current_player]
 
     @property
+    def previous_player(self) -> Player:
+        previous_player_index = (self._current_player - 1) % len(self._players)
+        return self._players[previous_player_index]
+
+    @property
     def number_of_cards(self) -> int:
         all_cards = 0
 
