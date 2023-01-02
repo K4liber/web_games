@@ -20,7 +20,7 @@ import { SocketService } from 'src/app/app-socket.service';
     .main-info {
       background-color: rgb(211,211,211);
       font-size: 1.2em;
-      min-height: 70px;
+      min-height: 80px;
       text-align: center;
     }
 

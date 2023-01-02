@@ -2,21 +2,26 @@
     <button 
         *ngIf="!isPlayerReady"
         (click)="play()"
+        class="standard-margin"
     >
         I am ready to play Bluff!
     </button>
     <ng-container *ngIf="isPlayerReady && hand.length === 0">
-        <div>
+        <div
+            class="standard-margin"
+        >
             Following players are ready: {{ players }}
         </div>
         <button
             *ngIf="isGameReady"
             (click)="start()"
+            class="standard-margin"
         >
             Start a game!
         </button>
         <div
             *ngIf="!isGameReady"
+            class="standard-margin"
         >
             Waiting for players ...
         </div>
@@ -54,16 +59,19 @@
                     {{ guess }}
                 </option>
             </select>
+            <button
+                (click)="onSelect()"
+                [disabled]="selectedSequence.trim() === ''"
+                class="standard-margin"
+            >
+                Guess
+            </button>
         </div>
-        <button
-            (click)="onSelect()"
-            [disabled]="selectedSequence.trim() === ''"
-        >
-            Guess
-        </button>
+        
         <button
             [disabled]="isStart"
             (click)="onCheck()"
+            class="standard-margin"
         >
             Check
         </button>

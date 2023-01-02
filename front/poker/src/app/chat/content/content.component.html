@@ -1,10 +1,13 @@
-<div class="main-div">
+<div class="standard-container standard-margin-top">
     <button 
         (click)="changeChatHiden()"
+        class="standard-margin"
     >{{ changeChatHidenText }}</button>
     <div *ngIf="!isChatHiden">
         <div class="messages">
-            <p *ngFor="let message of messages" [ngClass]="message.author === null ? 'center' : ''">
+            <p *ngFor="let message of messages" 
+                [ngClass]="message.author === null ? 'center standard-margin' : 'standard-margin'"
+            >
                 {{ message.content }}
             </p>
         </div>
@@ -12,10 +15,12 @@
             type="text" 
             placeholder="Enter message"
             [(ngModel)]="currentMessage" 
+            class="standard-margin"
         >
         <button 
             type="submit" 
             (click)="submitMessage()"
+            class="standard-margin"
         >Send</button>
     </div>
 

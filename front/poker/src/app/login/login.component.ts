@@ -10,9 +10,6 @@ import { SocketService } from '../app-socket.service';
       background-color: grey;
     }
 
-    .element {
-      margin: 5px;
-    }
     `
   ]
 })

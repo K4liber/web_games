@@ -4,23 +4,23 @@
             type="text" 
             placeholder="Enter an username"
             [(ngModel)]="username" 
-            class="element"
+            class="standard-margin"
         >
         <button 
             type="submit" 
             (click)="login()"
-            class="element"
+            class="standard-margin"
         >Login</button>
     </div>
     <div *ngIf="isLogged">
         <p
-            class="element"
+            class="standard-margin"
         >
             Hello {{ username }}!
             <button 
                 type="submit"
                 (click)="logout()"
-                class="element"
+                class="standard-margin"
             >Logout</button>
         </p>
     </div>
