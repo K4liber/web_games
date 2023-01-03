@@ -214,3 +214,11 @@ class Game:
                 player.cards.add(self._cards_deck.pop(0))
 
         return self._players
+
+    def get_turns_until_mine(self, player: Player) -> int:
+        my_index = self._players.index(player)
+
+        if my_index >= self._current_player_index:
+            return my_index - self._current_player_index
+        else:
+            return my_index + len(self._players) - self._current_player_index

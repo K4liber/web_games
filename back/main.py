@@ -86,6 +86,18 @@ def start_bluff():
     else:
         emit('error', 'Minimum {CONST.MIN_PLAYERS} players are needed to play.', room=request.sid)
 
+
+def send_turn_info(is_start: bool = False):
+    for player in game.players:
+        if player.sid == game.current_player.sid:
+            _logger.info(f'{game.current_player} turn!')
+            emit('possible_guesses', [game.possible_guesses, is_start], room=game.current_player.sid)
+        else:
+            emit('current_player', [
+                game.current_player.username, game.get_turns_until_mine(player)
+            ], room=player.sid)
+
+
 def deal_cards():
     _logger.info(f'Dealing cards between following players: \
         {game.players_usernames}')
@@ -93,8 +105,7 @@ def deal_cards():
     for player in game.deal_cards():
         emit('hand', list(player.cards), room=player.sid)
 
-    _logger.info(f'{game.current_player} turn!')
-    emit('possible_guesses', [game.possible_guesses, True], room=game.current_player.sid)
+    send_turn_info(is_start=True)
 
 
 @socket.on('selected')
@@ -105,6 +116,9 @@ def selected(selected_guess):
         is_in = game.check()
         loser_sid = request.sid if is_in else game.previous_player.sid
         loser_player = game.get_player_by_sid(loser_sid)
+        players_cards = [
+            (player.username, list(player.cards)) for player in game.players
+        ]
         game.finish_round(loser_player)
         have_lost = loser_player not in game.players
         is_finished = len(game.players) == 1
@@ -124,7 +138,9 @@ def selected(selected_guess):
                 emit('progress', f'[{loser_player.username}] have lost recently! \
                     Starting next round with {game.number_of_cards} cards in play!', 
                     room=player.sid)
-        
+
+            emit('players_cards', players_cards, room=player.sid)
+
         if is_finished:
             game.reset()
 
@@ -132,15 +148,15 @@ def selected(selected_guess):
 
     game.set_current_guess(selected_guess)
     guessing_player = game.get_player_by_sid(request.sid)
+    cards_length = len(guessing_player.cards)
+    cards_str = 'cards' if cards_length > 1 else 'card'
     info = f'[{guessing_player.username}] having {len(guessing_player.cards)} ' \
-            'cards guess:' \
-            f"{selected_guess}"
+            f'{cards_str} guess: {selected_guess}'
 
     for player in game.players:
         emit('progress', info, room=player.sid)
 
-    _logger.info(f'{game.current_player} turn!')
-    emit('possible_guesses', [game.possible_guesses, False], room=game.current_player.sid)
+    send_turn_info()
 
 
 @socket.on('disconnect')

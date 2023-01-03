@@ -39,6 +39,36 @@ import { SocketService } from 'src/app/app-socket.service';
       font-size: 1.2em;
       text-align: center;
     }
+    `,
+    `
+    .modal {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(255, 255, 255, 0.95);
+      z-index: 10;
+      pointer-events: none;
+      height: 100%;
+      overflow-y: auto;
+      pointer-events: all;
+    }
+    `,
+    `
+    .relative {
+      position: relative;
+    }
+    `,
+    `
+    .align-right {
+      text-align: right;
+    }
+    `,
+    `
+    .close-modal-button {
+      pointer-events: all;
+    }
     `
   ]
 })
@@ -50,11 +80,16 @@ export class ContentComponent implements OnInit {
   isGameReady: boolean = false;
   isStart: boolean = false;
   isPlayerReady: boolean = false;
-  hand: string[][] = []
+  hand: [string, string][] = []
   possibleGuesses: string[] | null = null
   selectedSequence: string = ''
   progress: string[] = []
   players: string[] = []
+  currentUsername: string | null = null
+  untilMyTurn: number = -1
+  isModalOpen: boolean = false
+  playersCards: [string, [string, string][]][] = []
+  lastGuessMsg: string = ''
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -68,21 +103,32 @@ export class ContentComponent implements OnInit {
     this.socket.on('error', (errorMessage: string) => {
       this.onError(errorMessage)
     })
-    this.socket.on('hand', (hand: string[][]) => {
+    this.socket.on('hand', (hand: [string, string][]) => {
       this.hand = hand
     })
     this.socket.on('possible_guesses', (possibleGuesses: [string[], boolean]) => {
       this.possibleGuesses = possibleGuesses[0]
+      this.isStart = possibleGuesses[1]
 
       if (this.possibleGuesses !== null) {
+        this.untilMyTurn = 0
         this.myTurn.emit(true)
       }
 
-      this.isStart = possibleGuesses[1]
       this.selectedSequence = ''
       this.changeDetectorRef.detectChanges()
     })
+    this.socket.on('current_player', (data: [string, number]) => {
+      this.isStart = false
+      this.currentUsername = data[0]
+      this.untilMyTurn = data[1]
+      this.changeDetectorRef.detectChanges()
+    })
     this.socket.on('progress', (progress: string) => {
+      if (progress.includes('guess')) {
+        this.lastGuessMsg = progress
+      }
+
       this.progress.unshift(progress)
     })
     this.socket.on('finished', () => {
@@ -90,6 +136,11 @@ export class ContentComponent implements OnInit {
       this.isGameReady = false
       this.possibleGuesses = null
       this.hand = []
+      this.isModalOpen = false
+    })
+    this.socket.on('players_cards', (data: [string, [string, string][]][]) => {
+      this.playersCards = data
+      this.isModalOpen = true
     })
   }
 
@@ -132,7 +183,7 @@ export class ContentComponent implements OnInit {
     this.socket.emit('start_bluff')
   }
 
-  getCardImageSrc(card: string[]): string {
+  getCardImageSrc(card: [string, string]): string {
     return "/assets/img/cards/" + card[0] + "_of_" + card[1] + ".png";
   }
 
@@ -147,6 +198,15 @@ export class ContentComponent implements OnInit {
     this.socket.emit('selected', 'check')
     this.possibleGuesses = null
     this.myTurn.emit(false)
+    this.changeDetectorRef.detectChanges()
+  }
+
+  get leftPlayersString(): string {
+    return this.untilMyTurn > 1 ? (this.untilMyTurn + ' players left for your turn!') : 'You are next!'
+  }
+
+  closeModal() {
+    this.isModalOpen = false
     this.changeDetectorRef.detectChanges()
   }
 }
