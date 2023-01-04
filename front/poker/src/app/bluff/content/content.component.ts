@@ -17,6 +17,10 @@ import { SocketService } from 'src/app/app-socket.service';
       padding: 5px;
     }
 
+    .room-info {
+      min-height: 60px;
+    }
+
     .main-info {
       background-color: rgb(211,211,211);
       font-size: 1.2em;
@@ -137,6 +141,7 @@ export class ContentComponent implements OnInit {
       this.possibleGuesses = null
       this.hand = []
       this.isModalOpen = false
+      this.changeDetectorRef.detectChanges()
     })
     this.socket.on('players_cards', (data: [string, [string, string][]][]) => {
       this.playersCards = data
@@ -145,6 +150,7 @@ export class ContentComponent implements OnInit {
   }
 
   stopGame() {
+    this.isModalOpen = false;
     this.isGameReady = false;
     this.isStart = false;
     this.isPlayerReady = false;

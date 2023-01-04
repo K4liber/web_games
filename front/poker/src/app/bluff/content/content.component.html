@@ -29,33 +29,38 @@
             </div>
         </ng-container>
     </div>
-    <button 
-        *ngIf="!isPlayerReady"
-        (click)="play()"
-        class="standard-margin"
+    <div
+        class="room-info"
+        *ngIf="progress.length === 0 || !isPlayerReady"
     >
-        I am ready to play Bluff!
-    </button>
-    <ng-container *ngIf="isPlayerReady && hand.length === 0">
-        <div
+        <button 
+            *ngIf="!isPlayerReady"
+            (click)="play()"
             class="standard-margin"
         >
-            Following players are ready: {{ players }}
-        </div>
-        <button
-            *ngIf="isGameReady"
-            (click)="start()"
-            class="standard-margin"
-        >
-            Start a game!
+            I am ready to play Bluff!
         </button>
-        <div
-            *ngIf="!isGameReady"
-            class="standard-margin"
-        >
-            Waiting for players ...
-        </div>
-    </ng-container>
+        <ng-container *ngIf="isPlayerReady && hand.length === 0">
+            <div
+                class="standard-margin"
+            >
+                Following players are ready: {{ players }}
+            </div>
+            <button
+                *ngIf="isGameReady"
+                (click)="start()"
+                class="standard-margin"
+            >
+                Start a game!
+            </button>
+            <div
+                *ngIf="!isGameReady"
+                class="standard-margin"
+            >
+                Waiting for players ...
+            </div>
+        </ng-container>
+    </div>
     <div 
         class="hand-title"
         *ngIf="isPlayerReady && hand.length !== 0"
@@ -70,41 +75,44 @@
             <img [src]="getCardImageSrc(card)" alt="image">
         </div>
     </div>
-    <div *ngIf="untilMyTurn > 0 && progress.length && isGameReady" class="main-info">
-        [{{ currentUsername }}] turn. {{ leftPlayersString }} 
-    </div>
-    <div *ngIf="possibleGuesses !== null" class="main-info">
-        <div>
-            Your turn!
-        </div>
-        <div *ngIf="possibleGuesses.length">
-            <select
-                [(ngModel)]="selectedSequence"
-            >
-                <option value="" disabled selected hidden>Choose a sequence</option>
-                <option 
-                    *ngFor="let guess of possibleGuesses" 
-                    [ngValue]="guess"
+    
+    <div class="main-info">
+        <ng-container *ngIf="untilMyTurn > 0 && progress.length && isGameReady">
+            [{{ currentUsername }}] turn. {{ leftPlayersString }} 
+        </ng-container>
+        <ng-container *ngIf="possibleGuesses !== null">
+            <div>
+                Your turn!
+            </div>
+            <div *ngIf="possibleGuesses.length">
+                <select
+                    [(ngModel)]="selectedSequence"
                 >
-                    {{ guess }}
-                </option>
-            </select>
+                    <option value="" disabled selected hidden>Choose a sequence</option>
+                    <option 
+                        *ngFor="let guess of possibleGuesses" 
+                        [ngValue]="guess"
+                    >
+                        {{ guess }}
+                    </option>
+                </select>
+                <button
+                    (click)="onSelect()"
+                    [disabled]="selectedSequence.trim() === ''"
+                    class="standard-margin"
+                >
+                    Guess
+                </button>
+            </div>
+            
             <button
-                (click)="onSelect()"
-                [disabled]="selectedSequence.trim() === ''"
+                [disabled]="isStart"
+                (click)="onCheck()"
                 class="standard-margin"
             >
-                Guess
+                Check
             </button>
-        </div>
-        
-        <button
-            [disabled]="isStart"
-            (click)="onCheck()"
-            class="standard-margin"
-        >
-            Check
-        </button>
+        </ng-container>
     </div>
     <div class="messages" *ngIf="progress.length">
         <p 

@@ -1,6 +1,6 @@
 .main {
     min-width: 300px;
-    max-width: 500px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
@@ -29,7 +29,7 @@ $standard-margin: 4px;
 
 .messages {
     padding: $standard-margin;
-    width: 500px - 2*$standard-margin; 
+    width: 600px - 2*$standard-margin; 
     height: 200px;
     border: 1px solid black; 
     overflow-y: auto;
