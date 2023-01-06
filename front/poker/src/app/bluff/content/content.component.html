@@ -24,7 +24,10 @@
                 class="hand"
             >
                 <div class="card" *ngFor="let card of playerHand[1]">
-                    <img [src]="getCardImageSrc(card)" alt="image">
+                    <img 
+                        [src]="getCardImageSrc(card)" 
+                        [alt]="card"
+                    >
                 </div>
             </div>
         </ng-container>

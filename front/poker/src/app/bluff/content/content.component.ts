@@ -18,6 +18,10 @@ import { getTimeNowString } from 'src/app/common';
       padding: 5px;
     }
 
+    .card>img {
+      max-width: 15vw;
+    }
+
     .room-info {
       min-height: 24px;
     }
