@@ -171,15 +171,24 @@ def disconnect():
     disconnected_player = game.get_player_by_sid(request.sid)
 
     if disconnected_player:
+        if len(game.players) == 2:
+            for player in game.players:
+                emit('ready_players', [], room=player.sid)
+
+            game.reset()
+        else:
+            game.remove_player(disconnected_player)
+            _logger.info(f'Player {sid_to_username[request.sid]} have left.')
+            deal_cards()
+
+        info = f'Starting next round with {game.number_of_cards} cards in play!'
         
         for player in game.players:
-            emit('ready_players', [], room=player.sid)
-        
-        _logger.info(f'Reseting game, {sid_to_username[request.sid]} have left.')
-        game.reset()
+            emit('player_disconnected', sid_to_username[request.sid], room=player.sid)
+            emit('progress', info, room=player.sid)
 
     for sid in sid_to_username.keys():
-        emit('player_disconnected', sid_to_username[request.sid], room=sid)
+        emit('user_disconnected', sid_to_username[request.sid], room=sid)
 
     del sid_to_username[request.sid]
 

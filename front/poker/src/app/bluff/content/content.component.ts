@@ -29,13 +29,12 @@ import { SocketService } from 'src/app/app-socket.service';
     }
 
     .last-info {
+      word-wrap: break-word;
       font-weight: bold;
-      font-color: white;
-      border: 1px solid;
     }
 
     .normal-info {
-      color: rgb(50, 50, 50);
+      word-wrap: break-word;
     }
     `,
     `
@@ -56,6 +55,7 @@ import { SocketService } from 'src/app/app-socket.service';
       pointer-events: none;
       height: 100%;
       overflow-y: auto;
+      overflow-x: auto;
       pointer-events: all;
     }
     `,
@@ -94,6 +94,10 @@ export class ContentComponent implements OnInit {
   isModalOpen: boolean = false
   playersCards: [string, [string, string][]][] = []
   lastGuessMsg: string = ''
+  lastProgressClass: string = 'last-info'
+  secondsLeft: number = 0
+  timerInterval: ReturnType<typeof setInterval> | null = null;
+  autoTurnTriggered: boolean = false
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -116,6 +120,7 @@ export class ContentComponent implements OnInit {
 
       if (this.possibleGuesses !== null) {
         this.untilMyTurn = 0
+        this.startTimer()
         this.myTurn.emit(true)
       }
 
@@ -133,7 +138,10 @@ export class ContentComponent implements OnInit {
         this.lastGuessMsg = progress
       }
 
-      this.progress.unshift(progress)
+      this.addToProgress(progress)
+    })
+    this.socket.on('player_disconnected', (username: string) => {
+      this.addToProgress("[" + username + "] exited the game.")
     })
     this.socket.on('finished', () => {
       this.isPlayerReady = false
@@ -147,6 +155,57 @@ export class ContentComponent implements OnInit {
       this.playersCards = data
       this.isModalOpen = true
     })
+  }
+
+  startTimer() {
+    this.clearInterval()
+    this.autoTurnTriggered = false
+    this.secondsLeft = 120
+    this.timerInterval = setInterval(
+      () => {
+        this.secondsLeft -= 1
+
+        if (this.secondsLeft === 0) {
+          this.autoTurnTriggered = true
+
+          if (this.isStart && this.possibleGuesses) {
+            if (this.selectedSequence == '') {
+              this.selectedSequence = this.possibleGuesses[0]
+            }
+            
+            this.onSelect()
+          } else {
+            this.onCheck()
+          }
+        }
+      }, 1000
+    )
+  }
+
+  timePartPadding(timePart: number): string {
+    return String(timePart).padStart(2, '0')
+  }
+
+  currentTimestampString(): string {
+    let timestamp = new Date()
+    let timestampString = 
+      this.timePartPadding(timestamp.getHours()) + ':' + 
+      this.timePartPadding(timestamp.getMinutes()) + ':' + 
+      this.timePartPadding(timestamp.getSeconds())
+    return timestampString
+  }
+
+  addToProgress(message: string) {
+    let messageWithTimestamp = "(" + this.currentTimestampString() + ") " + message
+    this.progress.unshift(messageWithTimestamp)
+    this.lastProgressClass = 'last-info'
+    this.changeDetectorRef.detectChanges()
+    setTimeout(
+      () => {
+        this.lastProgressClass = 'normal-info'
+        this.changeDetectorRef.detectChanges()
+      }, 1000
+    )
   }
 
   stopGame() {
@@ -193,7 +252,15 @@ export class ContentComponent implements OnInit {
     return "/assets/img/cards/" + card[0] + "_of_" + card[1] + ".png";
   }
 
+  clearInterval() {
+    if (this.timerInterval !== null) {
+      window.clearInterval(this.timerInterval)
+      this.timerInterval = null
+    }
+  }
+
   onSelect() {
+    this.clearInterval()
     this.socket.emit('selected', this.selectedSequence)
     this.possibleGuesses = null
     this.myTurn.emit(false)
@@ -201,6 +268,7 @@ export class ContentComponent implements OnInit {
   }
   
   onCheck() {
+    this.clearInterval()
     this.socket.emit('selected', 'check')
     this.possibleGuesses = null
     this.myTurn.emit(false)

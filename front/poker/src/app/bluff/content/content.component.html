@@ -82,7 +82,7 @@
         </ng-container>
         <ng-container *ngIf="possibleGuesses !== null">
             <div>
-                Your turn!
+                Your turn! {{ secondsLeft }} seconds left.
             </div>
             <div *ngIf="possibleGuesses.length">
                 <select
@@ -117,7 +117,7 @@
     <div class="messages" *ngIf="progress.length">
         <p 
             *ngFor="let progressStep of progress; let i = index"
-            [ngClass]="i === 0 ? 'last-info' : 'normal-info'"
+            [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
         >
             {{ progressStep }}
         </p>

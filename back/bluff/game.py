@@ -110,6 +110,11 @@ class Game:
         return self._players[previous_player_index]
 
     @property
+    def next_player(self) -> Player:
+        previous_player_index = (self._current_player_index + 1) % len(self._players)
+        return self._players[previous_player_index]
+
+    @property
     def number_of_cards(self) -> int:
         all_cards = 0
 
@@ -133,7 +138,7 @@ class Game:
         next_starting_player = self._players[next_starting_player_index]
 
         if self._player_to_number_of_cards[loser_player] > self.max_cards:
-            self.remove_player(loser_player.sid)
+            self.remove_player(loser_player)
 
         self._current_player_index = self._players.index(next_starting_player)
         self._current_guess_index = None
@@ -164,12 +169,14 @@ class Game:
     def add_player(self, sid: str, username: str):
         self._players.append(Player(sid=sid, username=username, cards=set()))
 
-    def remove_player(self, player_sid: str):
-        player = self.get_player_by_sid(player_sid)
+    def remove_player(self, player: Player):
+        player_index = self._players.index(player)
+        self._players.remove(player)
 
-        if player:
-            self._players.remove(player)
-            del self._player_to_number_of_cards[player]
+        if player_index == self._current_player_index:
+            self._current_player_index = self._players.index(self.next_player)
+
+        del self._player_to_number_of_cards[player]
 
     @property
     def possible_guesses(self):

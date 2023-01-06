@@ -25,7 +25,7 @@ export class ContentComponent implements OnInit {
     this.socket.on('returndata', (message: string) => {
       this.onNotify(message)
     })
-    this.socket.on('player_disconnected', (username: string) => {
+    this.socket.on('user_disconnected', (username: string) => {
       this.onNotify("[" + username + "] have left! Bye bye!")
     })
   }
