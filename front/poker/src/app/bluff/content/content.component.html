@@ -39,17 +39,16 @@
         <button 
             *ngIf="!isPlayerReady"
             (click)="play()"
-            class="standard-margin"
+            class="standard-margin standard-padding"
         >
             I am ready to play Bluff!
         </button>
-        <ng-container *ngIf="isPlayerReady && hand.length === 0">
-            <div
-                class="standard-margin"
-            >
-                Following players are ready: {{ players }}
-            </div>
-        </ng-container>
+        <div
+            class="standard-padding standard-padding"
+            *ngIf="isPlayerReady && hand.length === 0"
+        >
+            Following players are ready: {{ players }}
+        </div>
     </div>
     <div 
         class="hand-title"
@@ -69,14 +68,14 @@
     <div class="main-info">
         <div
             *ngIf="!isGameReady"
-            class="standard-margin"
+            class="standard-padding"
         >
             Waiting for players ...
         </div>
         <button
             *ngIf="isGameReady && progress.length === 0"
             (click)="start()"
-            class="standard-margin"
+            class="standard-padding standard-margin"
         >
             Start a game!
         </button>

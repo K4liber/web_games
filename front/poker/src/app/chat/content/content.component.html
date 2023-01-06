@@ -1,9 +1,25 @@
-<div class="standard-container standard-margin-top">
+<div class="standard-container standard-margin-top chat-main">
     <button 
         (click)="changeChatHiden()"
-        class="standard-margin"
+        class="standard-margin standard-padding float-right"
     >{{ changeChatHidenText }}</button>
+    <ng-container
+        *ngIf="!isChatHiden"
+    >
+        <input 
+            type="text" 
+            placeholder="Enter message"
+            [(ngModel)]="currentMessage" 
+            class="standard-margin standard-padding"
+        >
+        <button 
+            type="submit" 
+            (click)="submitMessage()"
+            class="standard-margin standard-padding"
+        >Send</button>
+    </ng-container>
     <div *ngIf="!isChatHiden">
+        
         <div class="messages">
             <div
                 *ngFor="let message of messages; let i = index" 
@@ -13,16 +29,5 @@
                 {{ message.content }}
             </div>
         </div>
-        <input 
-            type="text" 
-            placeholder="Enter message"
-            [(ngModel)]="currentMessage" 
-            class="standard-margin"
-        >
-        <button 
-            type="submit" 
-            (click)="submitMessage()"
-            class="standard-margin"
-        >Send</button>
-    </div>
+    </div> 
 </div>

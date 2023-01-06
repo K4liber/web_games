@@ -23,7 +23,7 @@ import { getTimeNowString } from 'src/app/common';
     }
 
     .room-info {
-      min-height: 24px;
+      min-height: 35px;
     }
 
     .main-info {

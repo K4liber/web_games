@@ -5,7 +5,19 @@ import { Message } from '../types';
 
 @Component({
   selector: 'chat-content',
-  templateUrl: './content.component.html'
+  templateUrl: './content.component.html',
+  styles: [
+    `
+    .float-right {
+      float:right;
+    }
+    `,
+    `
+    .chat-main {
+      min-height: 35px;
+    }
+    `
+  ]
 })
 export class ContentComponent implements OnInit {
   @Input() username: string = ''
