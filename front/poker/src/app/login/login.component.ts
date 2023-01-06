@@ -11,7 +11,6 @@ import { SocketService } from '../app-socket.service';
       margin-top: 10px;
       text-align: right;
       min-height: 35px;
-      min-width: 600px;
     }
     `,
     `
