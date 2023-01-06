@@ -29,7 +29,7 @@ import { getTimeNowString } from 'src/app/common';
     .main-info {
       background-color: rgb(211,211,211);
       font-size: 1.2em;
-      min-height: 80px;
+      min-height: 105px;
       text-align: center;
     }
     `,

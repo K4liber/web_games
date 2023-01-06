@@ -4,10 +4,10 @@
         type="text" 
         placeholder="Enter an username"
         [(ngModel)]="username" 
-        class="standard-margin standard-padding"
+        class="standard-space"
     >
     <div
-        class="standard-margin standard-padding inline"
+        class="standard-space inline"
         *ngIf="isLogged"
     >
         Hello {{ username }}!
@@ -16,12 +16,12 @@
         *ngIf="!isLogged"
         type="submit" 
         (click)="login()"
-        class="standard-margin standard-padding"
+        class="standard-space"
     >Login</button>
     <button 
         *ngIf="isLogged"
         type="submit"
         (click)="logout()"
-        class="standard-margin standard-padding inline"
+        class="standard-space inline"
     >Logout</button>
 </div>

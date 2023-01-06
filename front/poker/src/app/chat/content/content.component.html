@@ -1,7 +1,7 @@
-<div class="standard-container standard-margin-top chat-main">
+<div class="standard-container chat-main">
     <button 
         (click)="changeChatHiden()"
-        class="standard-margin standard-padding float-right"
+        class="standard-space float-right"
     >{{ changeChatHidenText }}</button>
     <ng-container
         *ngIf="!isChatHiden"
@@ -10,12 +10,12 @@
             type="text" 
             placeholder="Enter message"
             [(ngModel)]="currentMessage" 
-            class="standard-margin standard-padding"
+            class="standard-space"
         >
         <button 
             type="submit" 
             (click)="submitMessage()"
-            class="standard-margin standard-padding"
+            class="standard-space"
         >Send</button>
     </ng-container>
     <div *ngIf="!isChatHiden">

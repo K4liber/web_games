@@ -4,7 +4,7 @@
         *ngIf="isModalOpen"
     >
         <button
-            class="close-modal-button standard-margin"
+            class="close-modal-button standard-space"
             (click)="closeModal()"
         >
             Close
@@ -39,12 +39,12 @@
         <button 
             *ngIf="!isPlayerReady"
             (click)="play()"
-            class="standard-margin standard-padding"
+            class="standard-space"
         >
             I am ready to play Bluff!
         </button>
         <div
-            class="standard-padding standard-padding"
+            class="standard-padding"
             *ngIf="isPlayerReady && hand.length === 0"
         >
             Following players are ready: {{ players }}
@@ -79,16 +79,22 @@
         >
             Start a game!
         </button>
-        <ng-container *ngIf="untilMyTurn > 0 && progress.length && isGameReady">
+        <div
+            class="standard-padding"
+            *ngIf="untilMyTurn > 0 && progress.length && isGameReady"
+        >
             [{{ currentUsername }}] turn. {{ leftPlayersString }} 
-        </ng-container>
+        </div>
         <ng-container *ngIf="possibleGuesses !== null">
-            <div>
+            <div
+                class="standard-padding"
+            >
                 Your turn! {{ secondsLeft }} seconds left.
             </div>
             <div *ngIf="possibleGuesses.length">
                 <select
                     [(ngModel)]="selectedSequence"
+                    class="standard-space"
                 >
                     <option value="" disabled selected hidden>Choose a sequence</option>
                     <option 
@@ -101,7 +107,7 @@
                 <button
                     (click)="onSelect()"
                     [disabled]="selectedSequence.trim() === ''"
-                    class="standard-margin"
+                    class="standard-space"
                 >
                     Guess
                 </button>
@@ -110,7 +116,7 @@
             <button
                 [disabled]="isStart"
                 (click)="onCheck()"
-                class="standard-margin"
+                class="standard-space"
             >
                 Check
             </button>
