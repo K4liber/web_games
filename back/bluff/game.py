@@ -2,14 +2,12 @@ import copy
 from dataclasses import dataclass
 import hashlib
 import itertools
-import logging
 import random
 from typing import Optional
 from bluff.check import check
 from bluff.sequence import SEQUENCE
 
 
-_logger = logging.getLogger(__name__)
 _colors = [
     'spades',
     'clubs',
@@ -34,8 +32,7 @@ _sequences_hierarchy += [
 _sequences_hierarchy += [
     f'{SEQUENCE.TWO_PAIR} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
-        for figure_2 in range(9, 15)
-    if figure > figure_2
+        for figure_2 in range(9, figure)
 ]
 _sequences_hierarchy += [
     f'{SEQUENCE.SMALL_STRAIGHT}',
@@ -48,13 +45,7 @@ _sequences_hierarchy += [
     f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
         for figure_2 in range(9, 15)
-    if figure > figure_2
-]
-_sequences_hierarchy += [
-    f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
-        for figure in range(9, 15) 
-        for figure_2 in range(9, 15)
-    if figure < figure_2
+    if figure != figure_2
 ]
 _sequences_hierarchy += [
     f'{SEQUENCE.COLOR} {color}' for color in _colors
@@ -68,6 +59,10 @@ _sequences_hierarchy += [
 _sequences_hierarchy += [
     f'{SEQUENCE.BIG_POKER} {color}' for color in _colors
 ]
+
+
+def get_sequence_hierarchy() -> list[str]:
+    return copy.deepcopy(_sequences_hierarchy)
 
 
 @dataclass()
