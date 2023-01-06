@@ -130,7 +130,7 @@ def selected(selected_guess):
 
             if is_finished:
                 emit('progress', f'[{game.players[0].username}] have won! \
-                    Contgratulation!', room=player.sid)
+                    Congratulation!', room=player.sid)
                 emit('finished', room=player.sid)
             else:
                 deal_cards()

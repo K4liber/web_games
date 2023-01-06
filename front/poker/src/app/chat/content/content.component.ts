@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
+import { getTimeNowString } from 'src/app/common';
 import { Message } from '../types';
 
 @Component({
@@ -12,6 +13,7 @@ export class ContentComponent implements OnInit {
   isChatHiden: boolean = true;
   messages: Message[] = [];
   currentMessage: string = '';
+  lastProgressClass: string = 'last-info'
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -31,10 +33,19 @@ export class ContentComponent implements OnInit {
   }
 
   onNotify(message: string) {
-    this.messages.push({
-      content: message,
+    let messageWithTimestamp = "(" + getTimeNowString() + ") " + message
+    this.messages.unshift({
+      content: messageWithTimestamp,
       author: null
     })
+    this.lastProgressClass = 'last-info'
+    this.changeDetectorRef.detectChanges()
+    setTimeout(
+      () => {
+        this.lastProgressClass = 'normal-info'
+        this.changeDetectorRef.detectChanges()
+      }, 1000
+    )
     this.changeDetectorRef.detectChanges()
   }
 

@@ -46,19 +46,6 @@
             >
                 Following players are ready: {{ players }}
             </div>
-            <button
-                *ngIf="isGameReady"
-                (click)="start()"
-                class="standard-margin"
-            >
-                Start a game!
-            </button>
-            <div
-                *ngIf="!isGameReady"
-                class="standard-margin"
-            >
-                Waiting for players ...
-            </div>
         </ng-container>
     </div>
     <div 
@@ -77,6 +64,19 @@
     </div>
     
     <div class="main-info">
+        <div
+            *ngIf="!isGameReady"
+            class="standard-margin"
+        >
+            Waiting for players ...
+        </div>
+        <button
+            *ngIf="isGameReady && progress.length === 0"
+            (click)="start()"
+            class="standard-margin"
+        >
+            Start a game!
+        </button>
         <ng-container *ngIf="untilMyTurn > 0 && progress.length && isGameReady">
             [{{ currentUsername }}] turn. {{ leftPlayersString }} 
         </ng-container>
@@ -115,11 +115,12 @@
         </ng-container>
     </div>
     <div class="messages" *ngIf="progress.length">
-        <p 
+        <div 
             *ngFor="let progressStep of progress; let i = index"
+            class="standard-margin"
             [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
         >
             {{ progressStep }}
-        </p>
+        </div>
     </div>
 </div>

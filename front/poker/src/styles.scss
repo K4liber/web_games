@@ -29,7 +29,9 @@ $standard-margin: 4px;
 
 .messages {
     padding: $standard-margin;
-    width: 600px - 2*$standard-margin; 
+    width: -webkit-calc(100% - 2*$standard-margin);
+    width:    -moz-calc(100% - 2*$standard-margin);
+    width:         calc(100% - 2*$standard-margin);
     height: 200px;
     border: 1px solid black; 
     overflow-y: auto;
@@ -45,4 +47,14 @@ body {
 
 .standard-margin-top {
     margin-top: $standard-margin;
+}
+
+.normal-info {
+    display: flex;
+    word-wrap: break-word;
+}
+
+.last-info {
+    @extend .normal-info;
+    font-weight: bold;
 }

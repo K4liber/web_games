@@ -5,11 +5,13 @@
     >{{ changeChatHidenText }}</button>
     <div *ngIf="!isChatHiden">
         <div class="messages">
-            <p *ngFor="let message of messages" 
-                [ngClass]="message.author === null ? 'center standard-margin' : 'standard-margin'"
+            <div
+                *ngFor="let message of messages; let i = index" 
+                class="standard-margin"
+                [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
             >
                 {{ message.content }}
-            </p>
+            </div>
         </div>
         <input 
             type="text" 
@@ -22,11 +24,5 @@
             (click)="submitMessage()"
             class="standard-margin"
         >Send</button>
-    </div>
-
-
-
-    <div id="hand">
-
     </div>
 </div>

@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
+import { getTimeNowString } from 'src/app/common';
 
 @Component({
   selector: 'bluff-content',
@@ -18,7 +19,7 @@ import { SocketService } from 'src/app/app-socket.service';
     }
 
     .room-info {
-      min-height: 60px;
+      min-height: 24px;
     }
 
     .main-info {
@@ -26,15 +27,6 @@ import { SocketService } from 'src/app/app-socket.service';
       font-size: 1.2em;
       min-height: 80px;
       text-align: center;
-    }
-
-    .last-info {
-      word-wrap: break-word;
-      font-weight: bold;
-    }
-
-    .normal-info {
-      word-wrap: break-word;
     }
     `,
     `
@@ -182,21 +174,8 @@ export class ContentComponent implements OnInit {
     )
   }
 
-  timePartPadding(timePart: number): string {
-    return String(timePart).padStart(2, '0')
-  }
-
-  currentTimestampString(): string {
-    let timestamp = new Date()
-    let timestampString = 
-      this.timePartPadding(timestamp.getHours()) + ':' + 
-      this.timePartPadding(timestamp.getMinutes()) + ':' + 
-      this.timePartPadding(timestamp.getSeconds())
-    return timestampString
-  }
-
   addToProgress(message: string) {
-    let messageWithTimestamp = "(" + this.currentTimestampString() + ") " + message
+    let messageWithTimestamp = "(" + getTimeNowString() + ") " + message
     this.progress.unshift(messageWithTimestamp)
     this.lastProgressClass = 'last-info'
     this.changeDetectorRef.detectChanges()
