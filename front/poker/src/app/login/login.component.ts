@@ -6,10 +6,17 @@ import { SocketService } from '../app-socket.service';
   templateUrl: './login.component.html',
   styles: [
     `
-    .main {
-      background-color: grey;
-      padding: 5px;
+    .login-div {
+      background-color: rgba(192, 192, 192);
+      margin-top: 10px;
       text-align: right;
+      min-height: 35px;
+      max-width: Min(96vw, 600px);
+    }
+    `,
+    `
+    .inline {
+      display: inline-block;
     }
     `
   ]

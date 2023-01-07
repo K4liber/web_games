@@ -1,26 +1,61 @@
-<div class="main-div">
-    <button 
-        *ngIf="!isPlayerReady"
-        (click)="play()"
+<div class="main-div relative">
+    <div 
+        class="modal align-right"
+        *ngIf="isModalOpen"
     >
-        I am ready to play Bluff!
-    </button>
-    <ng-container *ngIf="isPlayerReady && hand.length === 0">
-        <div>
-            Following players are ready: {{ players }}
-        </div>
         <button
-            *ngIf="isGameReady"
-            (click)="start()"
+            class="close-modal-button standard-space"
+            (click)="closeModal()"
         >
-            Start a game!
+            Close
+        </button>
+        <div 
+            class="hand-title"
+        >
+            {{ lastGuessMsg }}
+        </div>
+        <ng-container *ngFor="let playerHand of playersCards">
+            <div 
+                class="hand-title"
+            >
+                [{{ playerHand[0] }}] last hand:
+            </div>
+            <div 
+                class="hand"
+            >
+                <div class="card" *ngFor="let card of playerHand[1]">
+                    <img 
+                        [src]="getCardImageSrc(card)" 
+                        [alt]="card"
+                    >
+                </div>
+            </div>
+        </ng-container>
+    </div>
+    <div
+        class="room-info"
+        *ngIf="progress.length === 0 || !isPlayerReady"
+    >
+        <button 
+            *ngIf="!isPlayerReady"
+            (click)="play()"
+            class="standard-space"
+        >
+            I am ready to play Bluff!
         </button>
         <div
-            *ngIf="!isGameReady"
+            class="standard-padding"
+            *ngIf="isPlayerReady && hand.length === 0"
         >
-            Waiting for players ...
+            Following players are ready: {{ players }}
         </div>
-    </ng-container>
+    </div>
+    <div 
+        class="hand-title"
+        *ngIf="isPlayerReady && hand.length !== 0"
+    >
+        Your hand:
+    </div>
     <div 
         class="hand"
         *ngIf="isPlayerReady && hand.length !== 0"
@@ -29,46 +64,71 @@
             <img [src]="getCardImageSrc(card)" alt="image">
         </div>
     </div>
-    <div *ngIf="possibleGuesses === null && progress.length" class="main-info">
-        Wait for your turn ...
-    </div>
-    <div *ngIf="possibleGuesses !== null" class="main-info">
-        <div>
-            Your turn!
-        </div>
-        <div *ngIf="possibleGuesses.length">
-            <div>
-                Possible guesses:
-            </div>
-            <select
-                [(ngModel)]="selectedSequence"
-            >
-                <option 
-                    *ngFor="let guess of possibleGuesses" 
-                    [ngValue]="guess"
-                >
-                    {{ guess }}
-            </option>
-            </select>
-            <button
-                (click)="onSelect()"
-            >
-                Select
-            </button>
+    
+    <div class="main-info">
+        <div
+            *ngIf="!isGameReady"
+            class="standard-padding"
+        >
+            Waiting for players ...
         </div>
         <button
-            *ngIf="!isStart"
-            (click)="onCheck()"
+            *ngIf="isGameReady && progress.length === 0"
+            (click)="start()"
+            class="standard-padding standard-margin"
         >
-            Check
+            Start a game!
         </button>
+        <div
+            class="standard-padding"
+            *ngIf="untilMyTurn > 0 && progress.length && isGameReady"
+        >
+            [{{ currentUsername }}] turn. {{ leftPlayersString }} 
+        </div>
+        <ng-container *ngIf="possibleGuesses !== null">
+            <div
+                class="standard-padding"
+            >
+                Your turn! {{ secondsLeft }} seconds left.
+            </div>
+            <div *ngIf="possibleGuesses.length">
+                <select
+                    [(ngModel)]="selectedSequence"
+                    class="standard-space"
+                >
+                    <option value="" disabled selected hidden>Choose a sequence</option>
+                    <option 
+                        *ngFor="let guess of possibleGuesses" 
+                        [ngValue]="guess"
+                    >
+                        {{ guess }}
+                    </option>
+                </select>
+                <button
+                    (click)="onSelect()"
+                    [disabled]="selectedSequence.trim() === ''"
+                    class="standard-space"
+                >
+                    Guess
+                </button>
+            </div>
+            
+            <button
+                [disabled]="isStart"
+                (click)="onCheck()"
+                class="standard-space"
+            >
+                Check
+            </button>
+        </ng-container>
     </div>
     <div class="messages" *ngIf="progress.length">
-        <p 
+        <div 
             *ngFor="let progressStep of progress; let i = index"
-            [ngClass]="i === 0 ? 'last-info' : 'normal-info'"
+            class="standard-margin"
+            [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
         >
             {{ progressStep }}
-        </p>
+        </div>
     </div>
 </div>

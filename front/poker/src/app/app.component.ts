@@ -28,9 +28,9 @@ export class AppComponent implements OnInit {
 
   myTurn(isMyTurn: boolean) {
     if (isMyTurn) {
-      this.titleService.setTitle('* Poker')
+      this.titleService.setTitle('* Bluff - your turn!')
     } else {
-      this.titleService.setTitle('Poker')
+      this.titleService.setTitle('Bluff')
     }
   }
 }

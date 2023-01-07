@@ -1,27 +1,33 @@
-<div class="main-div">
+<div class="standard-container chat-main">
     <button 
         (click)="changeChatHiden()"
+        class="standard-space float-right"
     >{{ changeChatHidenText }}</button>
-    <div *ngIf="!isChatHiden">
-        <div class="messages">
-            <p *ngFor="let message of messages" [ngClass]="message.author === null ? 'center' : ''">
-                {{ message.content }}
-            </p>
-        </div>
+    <ng-container
+        *ngIf="!isChatHiden"
+    >
         <input 
             type="text" 
             placeholder="Enter message"
             [(ngModel)]="currentMessage" 
+            class="standard-space"
         >
         <button 
             type="submit" 
             (click)="submitMessage()"
+            class="standard-space"
         >Send</button>
-    </div>
-
-
-
-    <div id="hand">
-
-    </div>
+    </ng-container>
+    <div *ngIf="!isChatHiden">
+        
+        <div class="messages">
+            <div
+                *ngFor="let message of messages; let i = index" 
+                class="standard-margin"
+                [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
+            >
+                {{ message.content }}
+            </div>
+        </div>
+    </div> 
 </div>

@@ -1,10 +1,23 @@
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
+import { getTimeNowString } from 'src/app/common';
 import { Message } from '../types';
 
 @Component({
   selector: 'chat-content',
-  templateUrl: './content.component.html'
+  templateUrl: './content.component.html',
+  styles: [
+    `
+    .float-right {
+      float:right;
+    }
+    `,
+    `
+    .chat-main {
+      min-height: 35px;
+    }
+    `
+  ]
 })
 export class ContentComponent implements OnInit {
   @Input() username: string = ''
@@ -12,6 +25,7 @@ export class ContentComponent implements OnInit {
   isChatHiden: boolean = true;
   messages: Message[] = [];
   currentMessage: string = '';
+  lastProgressClass: string = 'last-info'
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -25,16 +39,25 @@ export class ContentComponent implements OnInit {
     this.socket.on('returndata', (message: string) => {
       this.onNotify(message)
     })
-    this.socket.on('player_disconnected', (username: string) => {
+    this.socket.on('user_disconnected', (username: string) => {
       this.onNotify("[" + username + "] have left! Bye bye!")
     })
   }
 
   onNotify(message: string) {
-    this.messages.push({
-      content: message,
+    let messageWithTimestamp = "(" + getTimeNowString() + ") " + message
+    this.messages.unshift({
+      content: messageWithTimestamp,
       author: null
     })
+    this.lastProgressClass = 'last-info'
+    this.changeDetectorRef.detectChanges()
+    setTimeout(
+      () => {
+        this.lastProgressClass = 'normal-info'
+        this.changeDetectorRef.detectChanges()
+      }, 1000
+    )
     this.changeDetectorRef.detectChanges()
   }
 

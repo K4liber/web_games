@@ -30,7 +30,7 @@ socket = SocketIO(app, cors_allowed_origins=_allowed_origins)
 
 @dataclass(frozen=True)
 class _Const:
-    MAX_PLAYERS = 4
+    MAX_PLAYERS = 12
     MIN_PLAYERS = 2
 
 
@@ -86,12 +86,26 @@ def start_bluff():
     else:
         emit('error', 'Minimum {CONST.MIN_PLAYERS} players are needed to play.', room=request.sid)
 
+
+def send_turn_info(is_start: bool = False):
+    for player in game.players:
+        if player.sid == game.current_player.sid:
+            _logger.info(f'{game.current_player} turn!')
+            emit('possible_guesses', [game.possible_guesses, is_start], room=game.current_player.sid)
+        else:
+            emit('current_player', [
+                game.current_player.username, game.get_turns_until_mine(player)
+            ], room=player.sid)
+
+
 def deal_cards():
+    _logger.info(f'Dealing cards between following players: \
+        {game.players_usernames}')
+        
     for player in game.deal_cards():
         emit('hand', list(player.cards), room=player.sid)
 
-    _logger.info(f'{game.current_player} turn!')
-    emit('possible_guesses', [game.possible_guesses, True], room=game.current_player.sid)
+    send_turn_info(is_start=True)
 
 
 @socket.on('selected')
@@ -102,6 +116,9 @@ def selected(selected_guess):
         is_in = game.check()
         loser_sid = request.sid if is_in else game.previous_player.sid
         loser_player = game.get_player_by_sid(loser_sid)
+        players_cards = [
+            (player.username, list(player.cards)) for player in game.players
+        ]
         game.finish_round(loser_player)
         have_lost = loser_player not in game.players
         is_finished = len(game.players) == 1
@@ -113,7 +130,7 @@ def selected(selected_guess):
 
             if is_finished:
                 emit('progress', f'[{game.players[0].username}] have won! \
-                    Contgratulation!', room=player.sid)
+                    Congratulation!', room=player.sid)
                 emit('finished', room=player.sid)
             else:
                 deal_cards()
@@ -121,7 +138,9 @@ def selected(selected_guess):
                 emit('progress', f'[{loser_player.username}] have lost recently! \
                     Starting next round with {game.number_of_cards} cards in play!', 
                     room=player.sid)
-        
+
+            emit('players_cards', players_cards, room=player.sid)
+
         if is_finished:
             game.reset()
 
@@ -129,15 +148,15 @@ def selected(selected_guess):
 
     game.set_current_guess(selected_guess)
     guessing_player = game.get_player_by_sid(request.sid)
+    cards_length = len(guessing_player.cards)
+    cards_str = 'cards' if cards_length > 1 else 'card'
     info = f'[{guessing_player.username}] having {len(guessing_player.cards)} ' \
-            'cards guess:' \
-            f"{selected_guess}"
+            f'{cards_str} guess: {selected_guess}'
 
     for player in game.players:
         emit('progress', info, room=player.sid)
 
-    _logger.info(f'{game.current_player} turn!')
-    emit('possible_guesses', [game.possible_guesses, False], room=game.current_player.sid)
+    send_turn_info()
 
 
 @socket.on('disconnect')
@@ -152,15 +171,24 @@ def disconnect():
     disconnected_player = game.get_player_by_sid(request.sid)
 
     if disconnected_player:
+        if len(game.players) == 2:
+            for player in game.players:
+                emit('ready_players', [], room=player.sid)
+
+            game.reset()
+        else:
+            game.remove_player(disconnected_player)
+            _logger.info(f'Player {sid_to_username[request.sid]} have left.')
+            deal_cards()
+
+        info = f'Starting next round with {game.number_of_cards} cards in play!'
         
         for player in game.players:
-            emit('ready_players', [], room=player.sid)
-        
-        _logger.info(f'Reseting game, {sid_to_username[request.sid]} have left.')
-        game.reset()
+            emit('player_disconnected', sid_to_username[request.sid], room=player.sid)
+            emit('progress', info, room=player.sid)
 
     for sid in sid_to_username.keys():
-        emit('player_disconnected', sid_to_username[request.sid], room=sid)
+        emit('user_disconnected', sid_to_username[request.sid], room=sid)
 
     del sid_to_username[request.sid]
 

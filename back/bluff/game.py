@@ -2,14 +2,12 @@ import copy
 from dataclasses import dataclass
 import hashlib
 import itertools
-import logging
 import random
 from typing import Optional
 from bluff.check import check
 from bluff.sequence import SEQUENCE
 
 
-_logger = logging.getLogger(__name__)
 _colors = [
     'spades',
     'clubs',
@@ -34,8 +32,7 @@ _sequences_hierarchy += [
 _sequences_hierarchy += [
     f'{SEQUENCE.TWO_PAIR} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
-        for figure_2 in range(9, 15)
-    if figure > figure_2
+        for figure_2 in range(9, figure)
 ]
 _sequences_hierarchy += [
     f'{SEQUENCE.SMALL_STRAIGHT}',
@@ -48,13 +45,7 @@ _sequences_hierarchy += [
     f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
         for figure in range(9, 15) 
         for figure_2 in range(9, 15)
-    if figure > figure_2
-]
-_sequences_hierarchy += [
-    f'{SEQUENCE.FULL} {_figure_int_to_str[figure]};{_figure_int_to_str[figure_2]}' 
-        for figure in range(9, 15) 
-        for figure_2 in range(9, 15)
-    if figure < figure_2
+    if figure != figure_2
 ]
 _sequences_hierarchy += [
     f'{SEQUENCE.COLOR} {color}' for color in _colors
@@ -68,6 +59,10 @@ _sequences_hierarchy += [
 _sequences_hierarchy += [
     f'{SEQUENCE.BIG_POKER} {color}' for color in _colors
 ]
+
+
+def get_sequence_hierarchy() -> list[str]:
+    return copy.deepcopy(_sequences_hierarchy)
 
 
 @dataclass()
@@ -93,8 +88,8 @@ class Game:
         self._is_started = False
         self._player_to_number_of_cards = dict()
         self._players: list[Player] = []
-        self._current_guess: Optional[int] = None
-        self._current_player: Optional[int] = None
+        self._current_guess_index: Optional[int] = None
+        self._current_player_index: Optional[int] = None
         self._player_sid_to_username = dict()
 
     @property
@@ -107,11 +102,16 @@ class Game:
 
     @property
     def current_player(self) -> Player:
-        return self._players[self._current_player]
+        return self._players[self._current_player_index]
 
     @property
     def previous_player(self) -> Player:
-        previous_player_index = (self._current_player - 1) % len(self._players)
+        previous_player_index = (self._current_player_index - 1) % len(self._players)
+        return self._players[previous_player_index]
+
+    @property
+    def next_player(self) -> Player:
+        previous_player_index = (self._current_player_index + 1) % len(self._players)
         return self._players[previous_player_index]
 
     @property
@@ -127,17 +127,21 @@ class Game:
     def players_usernames(self) -> list[str]:
         return [player.username for player in self._players]
 
+    @property
+    def max_cards(self) -> int:
+        return min(5, int(24 / len(self._players)))
+
     def finish_round(self, loser_player: Player):
         self._player_to_number_of_cards[loser_player] = \
             self._player_to_number_of_cards[loser_player] + 1
+        next_starting_player_index = (self._players.index(loser_player) + 1) % len(self._players)
+        next_starting_player = self._players[next_starting_player_index]
 
-        if self._player_to_number_of_cards[loser_player] > 5:
-            self.remove_player(loser_player.sid)
-        else:
-            player_index = self._players.index(loser_player)
-            self._current_player = (player_index + 1) % len(self._players)
-        
-        self._current_guess = None
+        if self._player_to_number_of_cards[loser_player] > self.max_cards:
+            self.remove_player(loser_player)
+
+        self._current_player_index = self._players.index(next_starting_player)
+        self._current_guess_index = None
 
     def get_player_by_sid(self, sid: str) -> Optional[Player]:
         for player in self._players:
@@ -145,8 +149,8 @@ class Game:
                 return player
 
     def set_current_guess(self, guess: str):
-        self._current_guess = _sequences_hierarchy.index(guess)
-        self._current_player = (self._current_player + 1) % len(self._players)
+        self._current_guess_index = _sequences_hierarchy.index(guess)
+        self._current_player_index = (self._current_player_index + 1) % len(self._players)
 
     def check(self) -> bool:
         '''
@@ -158,25 +162,28 @@ class Game:
             all_cards_in_play.update(player.cards)
 
         return check(
-            _sequences_hierarchy[self._current_guess], 
+            _sequences_hierarchy[self._current_guess_index], 
             all_cards_in_play
         )
 
     def add_player(self, sid: str, username: str):
         self._players.append(Player(sid=sid, username=username, cards=set()))
 
-    def remove_player(self, player_sid: str):
-        player = self.get_player_by_sid(player_sid)
+    def remove_player(self, player: Player):
+        player_index = self._players.index(player)
+        self._players.remove(player)
 
-        if player:
-            self._players.remove(player)
+        if player_index == self._current_player_index:
+            self._current_player_index = self._players.index(self.next_player)
+
+        del self._player_to_number_of_cards[player]
 
     @property
     def possible_guesses(self):
-        if self._current_guess is None:
+        if self._current_guess_index is None:
             return _sequences_hierarchy
 
-        next_in_hierarchy = self._current_guess + 1
+        next_in_hierarchy = self._current_guess_index + 1
 
         if next_in_hierarchy >= len(_sequences_hierarchy):
             return []
@@ -189,10 +196,10 @@ class Game:
 
     def start(self):
         self._player_to_number_of_cards = {
-            player: 2 for player in self._players
+            player: 1 for player in self._players
         }
         self._is_started = True
-        self._current_player = 0
+        self._current_player_index = 0
         self._all_starting_players = copy.deepcopy(self._players)
         
     def _shuffle(self) -> list[tuple[str, str]]:
@@ -201,10 +208,19 @@ class Game:
     def deal_cards(self) -> list[Player]:
         self._cards_deck = self._shuffle()
 
-        for player, number_of_cards in self._player_to_number_of_cards.items():
+        for player in self._players:
+            number_of_cards = self._player_to_number_of_cards[player]
             player.cards = set()
 
             for _ in range(number_of_cards):
                 player.cards.add(self._cards_deck.pop(0))
 
         return self._players
+
+    def get_turns_until_mine(self, player: Player) -> int:
+        my_index = self._players.index(player)
+
+        if my_index >= self._current_player_index:
+            return my_index - self._current_player_index
+        else:
+            return my_index + len(self._players) - self._current_player_index

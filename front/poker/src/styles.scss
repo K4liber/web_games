@@ -1,23 +1,60 @@
 .main {
-    padding: 0;
-    margin: 0;
-    background-color: black;
+    min-width: 300px;
+    max-width: Min(96vw, 600px);
+    margin: 0 auto;
+}
+
+.standard-container {
+    @extend .main;
+    background-color: grey;
 }
 
 .main-div {
-    min-width: 300px;
-    max-width: 500px;
-    margin: 0 auto;
-    background-color: grey;
+    @extend .standard-container;
+    min-height: 60px;
 }
 
 .center {
     text-align: center;
 }
 
+$standard-margin: 4px;
+$big-margin: 2*$standard-margin;
+
 .messages {
-    width: 500px; 
+    padding: $standard-margin;
+    width: -webkit-calc(100% - 2*$standard-margin);
+    width:    -moz-calc(100% - 2*$standard-margin);
+    width:         calc(100% - 2*$standard-margin);
     height: 200px;
-    border: 1px solid black; 
     overflow-y: auto;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+body {
+    background-color: black;
+}
+
+.standard-margin {
+    margin: $standard-margin;
+}
+
+.standard-padding {
+    padding: $standard-margin;
+}
+
+.standard-space {
+    @extend .standard-padding;
+    @extend .standard-margin;
+}
+
+.normal-info {
+    display: flex;
+    word-wrap: break-word;
+}
+
+.last-info {
+    @extend .normal-info;
+    font-weight: bold;
 }
