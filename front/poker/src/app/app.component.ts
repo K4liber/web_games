@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -9,8 +9,15 @@ import { Title } from '@angular/platform-browser';
 export class AppComponent implements OnInit {
   isLogged: boolean = false;
   username: string = '';
+  currentView: string = 'table'
+  isChatHiden: boolean = true;
+  doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
+  doShowChat: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  constructor(private titleService: Title) {}
+  constructor(
+    private titleService: Title,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     document.body.className = "main";
@@ -19,11 +26,15 @@ export class AppComponent implements OnInit {
   usernameChanged(username: string) {
     if (username.trim() === '') {
       this.isLogged = false;
+      this.doShowBluff.emit(false)
+      this.doShowChat.emit(false)
     } else {
       this.isLogged = true;
+      this.doShowBluff.emit(true)
     }
     
     this.username = username
+    this.changeDetectorRef.detectChanges()
   }
 
   myTurn(isMyTurn: boolean) {
@@ -32,5 +43,16 @@ export class AppComponent implements OnInit {
     } else {
       this.titleService.setTitle('Bluff')
     }
+  }
+
+  changeChatHiden() {
+    this.isChatHiden = !this.isChatHiden
+    this.doShowChat.emit(!this.isChatHiden)
+    this.doShowBluff.emit(this.isChatHiden)
+    this.changeDetectorRef.detectChanges()
+  }
+
+  get changeChatHidenText() {
+    return this.isChatHiden ? "Show Chat" : "Show Table"
   }
 }

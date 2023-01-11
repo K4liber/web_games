@@ -1,16 +1,29 @@
 <router-outlet></router-outlet>
-<div class="main">
-  <app-login
-    (usernameChanged)="usernameChanged($event)"
-  ></app-login>
-  <ng-container *ngIf="isLogged">
+<div class="main main-container">
+  <div
+    class="vertical-center content-container"
+  >
+    <app-login
+      (usernameChanged)="usernameChanged($event)"
+    ></app-login>
     <bluff-content
       [username]="username"
+      [doShow]="doShowBluff"
       (myTurn)="myTurn($event)"
     >
     </bluff-content>
     <chat-content
       [username]="username"
+      [doShow]="doShowChat"
     ></chat-content>
-  </ng-container>
+    <div
+      class="footer"
+    >
+      <button 
+          (click)="changeChatHiden()"
+          class="standard-space float-right"
+          *ngIf="this.isLogged"
+      >{{ changeChatHidenText }}</button>
+    </div>
+  </div>
 </div>

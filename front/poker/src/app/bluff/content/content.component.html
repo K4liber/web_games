@@ -1,4 +1,7 @@
-<div class="main-div relative">
+<div 
+    class="main-div relative"
+    *ngIf="showContent"
+>
     <div 
         class="modal align-right"
         *ngIf="isModalOpen"
@@ -122,7 +125,7 @@
             </button>
         </ng-container>
     </div>
-    <div class="messages" *ngIf="progress.length">
+    <div class="messages progress-messages" *ngIf="progress.length">
         <div 
             *ngFor="let progressStep of progress; let i = index"
             class="standard-margin"

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
 import { getTimeNowString } from 'src/app/common';
 
@@ -69,14 +69,20 @@ import { getTimeNowString } from 'src/app/common';
     .close-modal-button {
       pointer-events: all;
     }
+
+    .progress-messages {
+      flex-grow: 1;
+    }
     `
   ]
 })
-export class ContentComponent implements OnInit {
+export class ContentComponent implements OnInit, OnChanges {
   
   @Input() username: string = ''
+  @Input() doShow : EventEmitter<boolean> | null = null;
   @Output() myTurn = new EventEmitter<boolean>();
 
+  showContent: boolean = false;
   isGameReady: boolean = false;
   isStart: boolean = false;
   isPlayerReady: boolean = false;
@@ -99,6 +105,13 @@ export class ContentComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private socket: SocketService
   ) { }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['doShow'] && changes['doShow'].currentValue) {
+      this.doShow = changes['doShow'].currentValue
+    }
+    this.loadDoShow()
+  }
 
   ngOnInit(): void {
     this.socket.on('ready_players', (players: string[]) => {
@@ -151,6 +164,15 @@ export class ContentComponent implements OnInit {
       this.playersCards = data
       this.isModalOpen = true
     })
+    this.loadDoShow()
+  }
+
+  loadDoShow() {
+    if (this.doShow) {
+      this.doShow.subscribe((doShow) => {
+        this.showContent = doShow
+      })
+    }
   }
 
   startTimer() {
