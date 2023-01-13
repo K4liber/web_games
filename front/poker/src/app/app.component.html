@@ -25,19 +25,19 @@
     >
       <button 
           (click)="selectView('table')"
-          class="standard-space float-right option-button"
+          class="option"
           *ngIf="this.isLogged"
           [disabled]="currentView === 'table'"
       >Table</button>
       <button 
             (click)="selectView('chat')"
-            class="standard-space float-right option-button"
+            class="option"
             *ngIf="this.isLogged"
             [disabled]="currentView === 'chat'"
         >Chat</button>
       <button 
             (click)="selectView('last')"
-            class="standard-space float-right option-button"
+            class="option"
             *ngIf="this.isLogged"
             [disabled]="currentView === 'last'"
         >Last Settlement</button>

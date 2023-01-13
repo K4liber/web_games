@@ -29,8 +29,19 @@
     bottom: 0px;
 }
 
-.option-button {
-    width: -webkit-calc(33% - 6px);
-    width:    -moz-calc(33% - 6px);
-    width:         calc(33% - 6px);
+$option-margin: 4px;
+
+.option {
+    display: inline-block;
+    height: -webkit-calc(100% - $option-margin);
+    height:    -moz-calc(100% - $option-margin);
+    height:         calc(100% - $option-margin);
+    width: -webkit-calc(33.33% - $option-margin);
+    width:    -moz-calc(33.33% - $option-margin);
+    width:         calc(33.33% - $option-margin);
+    margin: $option-margin / 2;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
