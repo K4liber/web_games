@@ -61,3 +61,26 @@ body {
     @extend .normal-info;
     font-weight: bold;
 }
+
+.card {
+    padding: 5px;
+}
+
+.card>img {
+    max-width: 15vw;
+}
+
+.hand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hand-title {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.bold {
+    font-weight: bold;
+}

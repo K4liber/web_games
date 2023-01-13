@@ -28,3 +28,9 @@
     position: absolute;
     bottom: 0px;
 }
+
+.option-button {
+    width: -webkit-calc(33% - 6px);
+    width:    -moz-calc(33% - 6px);
+    width:         calc(33% - 6px);
+}

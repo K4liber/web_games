@@ -16,14 +16,31 @@
       [username]="username"
       [doShow]="doShowChat"
     ></chat-content>
+    <app-last-settlement
+      [doShow]="doShowLastSettlement"
+    >
+    </app-last-settlement>
     <div
       class="footer"
     >
       <button 
-          (click)="changeChatHiden()"
-          class="standard-space float-right"
+          (click)="selectView('table')"
+          class="standard-space float-right option-button"
           *ngIf="this.isLogged"
-      >{{ changeChatHidenText }}</button>
-    </div>
+          [disabled]="currentView === 'table'"
+      >Table</button>
+      <button 
+            (click)="selectView('chat')"
+            class="standard-space float-right option-button"
+            *ngIf="this.isLogged"
+            [disabled]="currentView === 'chat'"
+        >Chat</button>
+      <button 
+            (click)="selectView('last')"
+            class="standard-space float-right option-button"
+            *ngIf="this.isLogged"
+            [disabled]="currentView === 'last'"
+        >Last Settlement</button>
+      </div>
   </div>
 </div>

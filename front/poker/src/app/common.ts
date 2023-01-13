@@ -11,6 +11,10 @@ const getTimeNowString = (): string => {
     return timestampString
 }
 
+const getCardImageSrc = (card: [string, string]): string => {
+    return "/assets/img/cards/" + card[0] + "_of_" + card[1] + ".png";
+}
+
 export {
-    getTimeNowString
+    getTimeNowString, getCardImageSrc
 }

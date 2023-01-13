@@ -10,14 +10,21 @@ export class AppComponent implements OnInit {
   isLogged: boolean = false;
   username: string = '';
   currentView: string = 'table'
-  isChatHiden: boolean = true;
   doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowChat: EventEmitter<boolean> = new EventEmitter<boolean>();
+  doShowLastSettlement: EventEmitter<boolean> = new EventEmitter<boolean>();
+  viewNameToEmitter: Record<string, EventEmitter<boolean>>
 
   constructor(
     private titleService: Title,
     private changeDetectorRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.viewNameToEmitter = {
+      'table': this.doShowBluff,
+      'chat': this.doShowChat,
+      'last': this.doShowLastSettlement
+    }
+  }
 
   ngOnInit() {
     document.body.className = "main";
@@ -45,14 +52,13 @@ export class AppComponent implements OnInit {
     }
   }
 
-  changeChatHiden() {
-    this.isChatHiden = !this.isChatHiden
-    this.doShowChat.emit(!this.isChatHiden)
-    this.doShowBluff.emit(this.isChatHiden)
+  selectView(view: string) {
+    let previousEmitter = this.viewNameToEmitter[this.currentView]
+    previousEmitter.emit(false)
+    let currentEmitter = this.viewNameToEmitter[view]
+    currentEmitter.emit(true)
+    this.currentView = view
     this.changeDetectorRef.detectChanges()
   }
 
-  get changeChatHidenText() {
-    return this.isChatHiden ? "Show Chat" : "Show Table"
-  }
 }
