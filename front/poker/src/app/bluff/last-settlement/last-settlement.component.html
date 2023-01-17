@@ -1,0 +1,27 @@
+<div 
+    class="main-div relative main"
+    *ngIf="showContent"
+> 
+    <div 
+        class="margin-bottom hand-title bold"
+    >
+        {{ summary }}
+    </div>
+    <ng-container *ngFor="let playerHand of playersCards">
+        <div 
+            class="hand-title"
+        >
+            [{{ playerHand[0] }}] last hand:
+        </div>
+        <div 
+            class="hand"
+        >
+            <div class="card" *ngFor="let card of playerHand[1]">
+                <img 
+                    [src]="getCardImageSrc(card)" 
+                    [alt]="card"
+                >
+            </div>
+        </div>
+    </ng-container>
+</div>

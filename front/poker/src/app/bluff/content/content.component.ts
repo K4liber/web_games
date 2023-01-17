@@ -1,27 +1,12 @@
-import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
-import { getTimeNowString } from 'src/app/common';
+import { getCardImageSrc, getTimeNowString } from 'src/app/common';
 
 @Component({
   selector: 'bluff-content',
   templateUrl: './content.component.html',
   styles: [
     `
-    .hand {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    `,
-    `
-    .card {
-      padding: 5px;
-    }
-
-    .card>img {
-      max-width: 15vw;
-    }
-
     .room-info {
       min-height: 35px;
     }
@@ -31,28 +16,6 @@ import { getTimeNowString } from 'src/app/common';
       font-size: 1.2em;
       min-height: 105px;
       text-align: center;
-    }
-    `,
-    `
-    .hand-title {
-      font-size: 1.2em;
-      text-align: center;
-    }
-    `,
-    `
-    .modal {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background: rgba(255, 255, 255, 0.95);
-      z-index: 10;
-      pointer-events: none;
-      height: 100%;
-      overflow-y: auto;
-      overflow-x: auto;
-      pointer-events: all;
     }
     `,
     `
@@ -69,14 +32,20 @@ import { getTimeNowString } from 'src/app/common';
     .close-modal-button {
       pointer-events: all;
     }
+
+    .progress-messages {
+      flex-grow: 1;
+    }
     `
   ]
 })
-export class ContentComponent implements OnInit {
+export class ContentComponent implements OnInit, OnChanges {
   
   @Input() username: string = ''
+  @Input() doShow : EventEmitter<boolean> | null = null;
   @Output() myTurn = new EventEmitter<boolean>();
 
+  showContent: boolean = false;
   isGameReady: boolean = false;
   isStart: boolean = false;
   isPlayerReady: boolean = false;
@@ -88,8 +57,7 @@ export class ContentComponent implements OnInit {
   currentUsername: string | null = null
   untilMyTurn: number = -1
   isModalOpen: boolean = false
-  playersCards: [string, [string, string][]][] = []
-  lastGuessMsg: string = ''
+  getCardImageSrc = getCardImageSrc
   lastProgressClass: string = 'last-info'
   secondsLeft: number = 0
   timerInterval: ReturnType<typeof setInterval> | null = null;
@@ -99,6 +67,13 @@ export class ContentComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef,
     private socket: SocketService
   ) { }
+  
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['doShow'] && changes['doShow'].currentValue) {
+      this.doShow = changes['doShow'].currentValue
+    }
+    this.loadDoShow()
+  }
 
   ngOnInit(): void {
     this.socket.on('ready_players', (players: string[]) => {
@@ -130,10 +105,6 @@ export class ContentComponent implements OnInit {
       this.changeDetectorRef.detectChanges()
     })
     this.socket.on('progress', (progress: string) => {
-      if (progress.includes('guess')) {
-        this.lastGuessMsg = progress
-      }
-
       this.addToProgress(progress)
     })
     this.socket.on('player_disconnected', (username: string) => {
@@ -147,10 +118,15 @@ export class ContentComponent implements OnInit {
       this.isModalOpen = false
       this.changeDetectorRef.detectChanges()
     })
-    this.socket.on('players_cards', (data: [string, [string, string][]][]) => {
-      this.playersCards = data
-      this.isModalOpen = true
-    })
+    this.loadDoShow()
+  }
+
+  loadDoShow() {
+    if (this.doShow) {
+      this.doShow.subscribe((doShow) => {
+        this.showContent = doShow
+      })
+    }
   }
 
   startTimer() {
@@ -229,10 +205,6 @@ export class ContentComponent implements OnInit {
 
   start() {
     this.socket.emit('start_bluff')
-  }
-
-  getCardImageSrc(card: [string, string]): string {
-    return "/assets/img/cards/" + card[0] + "_of_" + card[1] + ".png";
   }
 
   clearInterval() {

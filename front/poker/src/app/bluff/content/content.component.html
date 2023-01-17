@@ -1,37 +1,7 @@
-<div class="main-div relative">
-    <div 
-        class="modal align-right"
-        *ngIf="isModalOpen"
-    >
-        <button
-            class="close-modal-button standard-space"
-            (click)="closeModal()"
-        >
-            Close
-        </button>
-        <div 
-            class="hand-title"
-        >
-            {{ lastGuessMsg }}
-        </div>
-        <ng-container *ngFor="let playerHand of playersCards">
-            <div 
-                class="hand-title"
-            >
-                [{{ playerHand[0] }}] last hand:
-            </div>
-            <div 
-                class="hand"
-            >
-                <div class="card" *ngFor="let card of playerHand[1]">
-                    <img 
-                        [src]="getCardImageSrc(card)" 
-                        [alt]="card"
-                    >
-                </div>
-            </div>
-        </ng-container>
-    </div>
+<div 
+    class="main-div relative"
+    *ngIf="showContent"
+>
     <div
         class="room-info"
         *ngIf="progress.length === 0 || !isPlayerReady"
@@ -122,7 +92,7 @@
             </button>
         </ng-container>
     </div>
-    <div class="messages" *ngIf="progress.length">
+    <div class="messages progress-messages" *ngIf="progress.length">
         <div 
             *ngFor="let progressStep of progress; let i = index"
             class="standard-margin"

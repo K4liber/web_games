@@ -114,6 +114,8 @@ def selected(selected_guess):
 
     if selected_guess == 'check':
         is_in = game.check()
+        checking_player = game.get_player_by_sid(request.sid)
+        last_sequence = game.current_guess
         loser_sid = request.sid if is_in else game.previous_player.sid
         loser_player = game.get_player_by_sid(loser_sid)
         players_cards = [
@@ -133,6 +135,10 @@ def selected(selected_guess):
                     Congratulation!', room=player.sid)
                 emit('finished', room=player.sid)
             else:
+                
+                summary = f'Player [{checking_player.username}] have checked sequence ' + \
+                    f'"{last_sequence}". Player [{loser_player.username}] lost that round.'
+                emit('summary', summary, room=player.sid)
                 deal_cards()
                 guessing_player = game.get_player_by_sid(request.sid)
                 emit('progress', f'[{loser_player.username}] have lost recently! \

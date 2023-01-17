@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -9,8 +9,22 @@ import { Title } from '@angular/platform-browser';
 export class AppComponent implements OnInit {
   isLogged: boolean = false;
   username: string = '';
+  currentView: string = 'table'
+  doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
+  doShowChat: EventEmitter<boolean> = new EventEmitter<boolean>();
+  doShowLastSettlement: EventEmitter<boolean> = new EventEmitter<boolean>();
+  viewNameToEmitter: Record<string, EventEmitter<boolean>>
 
-  constructor(private titleService: Title) {}
+  constructor(
+    private titleService: Title,
+    private changeDetectorRef: ChangeDetectorRef
+  ) {
+    this.viewNameToEmitter = {
+      'table': this.doShowBluff,
+      'chat': this.doShowChat,
+      'last': this.doShowLastSettlement
+    }
+  }
 
   ngOnInit() {
     document.body.className = "main";
@@ -19,11 +33,15 @@ export class AppComponent implements OnInit {
   usernameChanged(username: string) {
     if (username.trim() === '') {
       this.isLogged = false;
+      this.doShowBluff.emit(false)
+      this.doShowChat.emit(false)
     } else {
       this.isLogged = true;
+      this.doShowBluff.emit(true)
     }
     
     this.username = username
+    this.changeDetectorRef.detectChanges()
   }
 
   myTurn(isMyTurn: boolean) {
@@ -33,4 +51,14 @@ export class AppComponent implements OnInit {
       this.titleService.setTitle('Bluff')
     }
   }
+
+  selectView(view: string) {
+    let previousEmitter = this.viewNameToEmitter[this.currentView]
+    previousEmitter.emit(false)
+    let currentEmitter = this.viewNameToEmitter[view]
+    currentEmitter.emit(true)
+    this.currentView = view
+    this.changeDetectorRef.detectChanges()
+  }
+
 }

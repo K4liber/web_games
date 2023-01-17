@@ -148,6 +148,10 @@ class Game:
             if player.sid == sid:
                 return player
 
+    @property
+    def current_guess(self) -> str:
+        return _sequences_hierarchy[self._current_guess_index]
+
     def set_current_guess(self, guess: str):
         self._current_guess_index = _sequences_hierarchy.index(guess)
         self._current_player_index = (self._current_player_index + 1) % len(self._players)

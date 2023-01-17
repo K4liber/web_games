@@ -11,7 +11,11 @@
 
 .main-div {
     @extend .standard-container;
-    min-height: 60px;
+    height: -webkit-calc(100% - 75px);
+    height:    -moz-calc(100% - 75px);
+    height:         calc(100% - 75px);
+    display: flex;
+    flex-direction: column;
 }
 
 .center {
@@ -26,10 +30,9 @@ $big-margin: 2*$standard-margin;
     width: -webkit-calc(100% - 2*$standard-margin);
     width:    -moz-calc(100% - 2*$standard-margin);
     width:         calc(100% - 2*$standard-margin);
-    height: 200px;
+    min-height: 200px;
     overflow-y: auto;
     border-top: 1px solid black;
-    border-bottom: 1px solid black;
 }
 
 body {
@@ -56,5 +59,28 @@ body {
 
 .last-info {
     @extend .normal-info;
+    font-weight: bold;
+}
+
+.card {
+    padding: 5px;
+}
+
+.card>img {
+    max-width: 15vw;
+}
+
+.hand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hand-title {
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.bold {
     font-weight: bold;
 }

@@ -1,33 +1,29 @@
-<div class="standard-container chat-main">
-    <button 
-        (click)="changeChatHiden()"
-        class="standard-space float-right"
-    >{{ changeChatHidenText }}</button>
-    <ng-container
-        *ngIf="!isChatHiden"
+<div 
+    class="standard-container main-div"
+    *ngIf="showContent"
+>
+    <div 
+        class="messages chat-messages"
+        id="messages"
     >
-        <input 
-            type="text" 
-            placeholder="Enter message"
-            [(ngModel)]="currentMessage" 
-            class="standard-space"
+        <div
+            *ngFor="let message of messages; let i = index" 
+            class="standard-margin"
+            [ngClass]="i === messages.length - 1 ? lastProgressClass : 'normal-info'"
         >
-        <button 
-            type="submit" 
-            (click)="submitMessage()"
-            class="standard-space"
-        >Send</button>
-    </ng-container>
-    <div *ngIf="!isChatHiden">
-        
-        <div class="messages">
-            <div
-                *ngFor="let message of messages; let i = index" 
-                class="standard-margin"
-                [ngClass]="i === 0 ? lastProgressClass : 'normal-info'"
-            >
-                {{ message.content }}
-            </div>
+            {{ message.content }}
         </div>
-    </div> 
+    </div>
+    <input 
+        type="text" 
+        placeholder="Enter message"
+        [(ngModel)]="currentMessage" 
+        class="standard-space"
+    >
+    <button 
+        type="submit" 
+        (click)="submitMessage()"
+        class="standard-space"
+        [disabled]="currentMessage === ''"
+    >Send</button>
 </div>
