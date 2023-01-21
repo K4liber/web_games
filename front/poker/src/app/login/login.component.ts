@@ -10,7 +10,7 @@ import { SocketService } from '../app-socket.service';
       background-color: rgba(192, 192, 192);
       text-align: right;
       height: 35px;
-      max-width: Min(96vw, 600px);
+      max-width: Min(96vw, 1200px);
     }
     `,
     `

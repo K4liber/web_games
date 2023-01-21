@@ -17,11 +17,28 @@ export class QuantumComponent implements OnInit {
     Chart.register(Annotation)
   }
 
-  @Input() size: number = 600;
+  @Input() size: number = 400;
+
+  propabilityQuantumChartData = Array.from({length: 13}, (_, index: number) => {
+      let xValue = index * 30
+      let radians = xValue/180 * Math.PI
+      return {
+        x: xValue, y: Math.cos(radians/2)**2
+      }
+    }
+  )
+
+  propabilityLinearChartData = Array.from({length: 13}, (_, index: number) => {
+      let xValue = index * 30
+      return {
+        x: xValue, y: 1 - xValue/180
+      }
+    }
+  )
 
   ngOnInit(): void {
     window.onload = () => {
-      this.drawCanvas(60, false, "myCanvas")
+      this.drawCanvas(120, false, "myCanvas")
     }
   }
 
@@ -79,7 +96,7 @@ export class QuantumComponent implements OnInit {
             ctx.fillStyle = moodValue.shade;
             ctx.fill();
         }
-        let out = middle/8
+        let out = middle/24
         ctx.setLineDash([2, 5]);
         ctx.lineWidth = 2;
         ctx.strokeStyle = "white";
@@ -90,8 +107,8 @@ export class QuantumComponent implements OnInit {
 
         ctx.font = "24px Arial";
         ctx.fillStyle = "rgb(255, 255, 255)"
-        ctx.fillText("0°", middle - 7, 105);
-        ctx.fillText("180°", middle - 20, middle*2 - 85);
+        // ctx.fillText("0°", middle - 7, 105);
+        // ctx.fillText("180°", middle - 20, middle*2 - 85);
         // Measurement degree
         let measurementSize = radius + 10
         let degreeSize = 2;
@@ -99,7 +116,7 @@ export class QuantumComponent implements OnInit {
         let x = Math.sin(startAngle + measurementDegree/180 * Math.PI) * measurementSize
         let y = Math.cos(startAngle + measurementDegree/180 * Math.PI) * measurementSize
         ctx.fillText(measurementDegree + "°→" + Math.round(100*this.quantumRelation(measurementDegree, 360)) + "%",
-         middle + x + 8, middle - y + 8);
+         middle + x + 8, middle - y + 4);
         ctx.lineWidth = 3;
         ctx.strokeStyle = "white";
         ctx.beginPath();
@@ -111,67 +128,57 @@ export class QuantumComponent implements OnInit {
       }
     }
   }
+  
 
   public lineChartData: ChartConfiguration['data'] = {
     datasets: [
       {
-        data: [ 65, 59, 80, 81, 56, 55, 40 ],
-        label: 'Series A',
-        backgroundColor: 'rgba(148,159,177,0.2)',
-        borderColor: 'rgba(148,159,177,1)',
-        pointBackgroundColor: 'rgba(148,159,177,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
+        type: 'line',
+        data: this.propabilityQuantumChartData,
+        label: 'Quantum',
+        backgroundColor: 'rgba(148,0,0,0.2)',
+        borderColor: 'rgba(148,0,0,1)'
       },
       {
-        data: [ 28, 48, 40, 19, 86, 27, 90 ],
-        label: 'Series B',
-        backgroundColor: 'rgba(77,83,96,0.2)',
-        borderColor: 'rgba(77,83,96,1)',
-        pointBackgroundColor: 'rgba(77,83,96,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(77,83,96,1)',
-        fill: 'origin',
-      },
-      {
-        data: [ 180, 480, 770, 90, 1000, 270, 400 ],
-        label: 'Series C',
-        yAxisID: 'y1',
-        backgroundColor: 'rgba(255,0,0,0.3)',
-        borderColor: 'red',
-        pointBackgroundColor: 'rgba(148,159,177,1)',
-        pointBorderColor: '#fff',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(148,159,177,0.8)',
-        fill: 'origin',
+        type: 'line',
+        data: this.propabilityLinearChartData,
+        label: 'Linear',
+        backgroundColor: 'rgba(0,148,0,0.2)',
+        borderColor: 'rgba(0,148,0,1)',
       }
-    ],
-    labels: [ 'January', 'February', 'March', 'April', 'May', 'June', 'July' ]
+    ]
   };
 
   public lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
     elements: {
       line: {
         tension: 0.5
       }
     },
     scales: {
-      // We use this empty structure as a placeholder for dynamic theming.
-      y:
-        {
-          position: 'left',
+      'x': {
+        type: 'linear',
+        title: {
+          color: 'white',
+          display: true,
+          text: 'Angle difference [°]'
         },
-      y1: {
-        position: 'right',
+        min: 0,
+        max: 180,
         grid: {
-          color: 'rgba(255,0,0,0.3)',
+          color: 'rgba(255,255,255,0.3)',
         },
         ticks: {
-          color: 'red'
+          color: 'white',
+          sampleSize: 0.2,
         }
+      },
+      y: {
+        position: 'left',
+        grid: {
+          color: 'rgba(255,255,255,0.3)',
+        },
       }
     }
   }
@@ -180,19 +187,6 @@ export class QuantumComponent implements OnInit {
   public lineChartType: ChartType = 'line';
 
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
-
-  private generateNumber(i: number): number {
-    return Math.floor((Math.random() * (i < 2 ? 100 : 1000)) + 1);
-  }
-
-  randomize(): void {
-    for (let i = 0; i < this.lineChartData.datasets.length; i++) {
-      for (let j = 0; j < this.lineChartData.datasets[i].data.length; j++) {
-        this.lineChartData.datasets[i].data[j] = this.generateNumber(i);
-      }
-    }
-    this.chart?.update();
-  }
 
   // events
   public chartClicked({ event, active }: { event?: ChartEvent, active?: {}[] }): void {
@@ -210,7 +204,7 @@ export class QuantumComponent implements OnInit {
 
   public pushOne(): void {
     this.lineChartData.datasets.forEach((x, i) => {
-      const num = this.generateNumber(i);
+      const num = 5
       x.data.push(num);
     });
     this.lineChartData?.labels?.push(`Label ${ this.lineChartData.labels.length }`);
