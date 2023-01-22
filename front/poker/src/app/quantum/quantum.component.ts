@@ -4,6 +4,7 @@ import { Chart, ChartConfiguration, ChartEvent, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { default as Annotation } from 'chartjs-plugin-annotation';
 import { Photon, PhotonsSinglet } from './quantum-oracle';
+import { Title } from '@angular/platform-browser';
 
 type ParticleMeasurement = {
   particle: Photon,
@@ -21,8 +22,10 @@ type ParticleMeasurement = {
 export class QuantumComponent implements OnInit {
 
   constructor(
-    @Inject(DOCUMENT) private document: Document
+    @Inject(DOCUMENT) private document: Document,
+    private titleService: Title,
   ) {
+    titleService.setTitle('Singlet')
     Chart.register(Annotation)
     this.photonsSingle = new PhotonsSinglet(
       this.aliceParticleMeasurement.particle, 
@@ -100,12 +103,8 @@ export class QuantumComponent implements OnInit {
     }
   }
 
-  angleChanged(particleName: string) {
-    if (particleName === 'alice') {
-      this.drawCanvas(this.aliceParticleMeasurement)
-    } else {
-      this.drawCanvas(this.bobParticleMeasurement)
-    }
+  angleChanged(particleMeasurement: ParticleMeasurement) {
+    this.drawCanvas(particleMeasurement)
   }
 
   reset() {
@@ -162,13 +161,12 @@ export class QuantumComponent implements OnInit {
           total: 360/resolution,
           shade: alreadyExecutedMeasurement.measurementValue ? this.rgb(r, 0, b) : this.rgb(b, 0, r)
       }
-  });
-
+    });
   }
-  measure(
-    particleName: string
+
+  measure (
+      particleMeasurement: ParticleMeasurement
   ) {
-    let particleMeasurement = this.particleNameToMeasurement[particleName]
     particleMeasurement.measurementAngle = particleMeasurement.angle
     particleMeasurement.measurementValue = particleMeasurement.particle.measureSpin(particleMeasurement.measurementAngle)
     this.drawCanvas(this.aliceParticleMeasurement)

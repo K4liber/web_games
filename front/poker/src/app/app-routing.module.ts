@@ -6,7 +6,7 @@ import { QuantumComponent } from './quantum/quantum.component';
 
 const routes: Routes = [
   { path: 'bluff', component: GameComponent },
-  { path: 'quantum', component: QuantumComponent },
+  { path: 'singlet', component: QuantumComponent },
   { path: 'home', component: HomeComponent }
 ];
 

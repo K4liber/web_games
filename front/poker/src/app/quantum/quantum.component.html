@@ -21,7 +21,7 @@
                     <input 
                         type="number"
                         [(ngModel)]="particleMeasurement.angle"
-                        (change)="angleChanged(particleMeasurement.canvasId)"
+                        (change)="angleChanged(particleMeasurement)"
                         [min]="0"
                         [max]="360"
                         [step]="5"
@@ -30,7 +30,7 @@
                 </div>
                 <div class="center">
                     <button 
-                        (click)="measure(particleMeasurement.canvasId)"
+                        (click)="measure(particleMeasurement)"
                         [disabled]="particleMeasurement.measurementAngle !== null"
                     >Measure</button>
                 </div>
