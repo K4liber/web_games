@@ -1,7 +1,7 @@
 .main {
-    min-width: 300px;
-    max-width: Min(96vw, 1200px);
+    width: Min(96vw, 800px);
     margin: 0 auto;
+    height: 100vh;
 }
 
 .standard-container {

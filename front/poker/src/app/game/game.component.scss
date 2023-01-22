@@ -3,7 +3,7 @@
 }
 
 .main-container {
-    height: 90vh;
+    height: 100%;
     position: relative;
 }
   
@@ -16,8 +16,10 @@
 }
 
 .content-container {
-    min-width: Min(96vw, 1200px);
-    height: Min(96vh, 800px);
+    min-width: Min(96vw, 800px);
+    height: -webkit-calc(100% - 70px);
+    height:    -moz-calc(100% - 70px);
+    height:         calc(100% - 70px);
     background-color: grey;
 }
 

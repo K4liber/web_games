@@ -59,6 +59,7 @@ export class ContentComponent implements OnInit, OnChanges {
     if (this.doShow) {
       this.doShow.subscribe((doShow) => {
         this.showContent = doShow
+        this.scrollMessagesDown()
       })
     }
   }
@@ -77,6 +78,10 @@ export class ContentComponent implements OnInit, OnChanges {
       }, 1000
     )
     this.changeDetectorRef.detectChanges()
+    this.scrollMessagesDown()
+  }
+
+  scrollMessagesDown() {
     let el = document.getElementById('messages');
 
     if (el) {
