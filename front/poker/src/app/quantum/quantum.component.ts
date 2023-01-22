@@ -3,6 +3,15 @@ import { DOCUMENT } from '@angular/common';
 import { Chart, ChartConfiguration, ChartEvent, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { default as Annotation } from 'chartjs-plugin-annotation';
+import { Photon, PhotonsSinglet } from './quantum-oracle';
+
+type ParticleMeasurement = {
+  particle: Photon,
+  canvasId: string,
+  angle: number,
+  measurementAngle: number | null
+  measurementValue: boolean | null
+}
 
 @Component({
   selector: 'app-quantum',
@@ -15,10 +24,34 @@ export class QuantumComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document
   ) {
     Chart.register(Annotation)
+    this.photonsSingle = new PhotonsSinglet(
+      this.aliceParticleMeasurement.particle, 
+      this.bobParticleMeasurement.particle
+    )
+    this.photonsSingle.entangle()
   }
 
   @Input() size: number = 400;
 
+  photonsSingle: PhotonsSinglet
+  aliceParticleMeasurement: ParticleMeasurement = {
+    particle: new Photon(),
+    canvasId: 'alice',
+    angle: 0,
+    measurementAngle: null,
+    measurementValue: null
+  }
+  bobParticleMeasurement: ParticleMeasurement = {
+    particle: new Photon(),
+    canvasId: 'bob',
+    angle: 0,
+    measurementAngle: null,
+    measurementValue: null
+  }
+  particleNameToMeasurement: Record<string, ParticleMeasurement> = {
+    'alice': this.aliceParticleMeasurement,
+    'bob': this.bobParticleMeasurement
+  }
   propabilityQuantumChartData = Array.from({length: 13}, (_, index: number) => {
       let xValue = index * 30
       let radians = xValue/180 * Math.PI
@@ -27,7 +60,6 @@ export class QuantumComponent implements OnInit {
       }
     }
   )
-
   propabilityLinearChartData = Array.from({length: 13}, (_, index: number) => {
       let xValue = index * 30
       return {
@@ -38,8 +70,60 @@ export class QuantumComponent implements OnInit {
 
   ngOnInit(): void {
     window.onload = () => {
-      this.drawCanvas(120, false, "myCanvas")
+      this.reset()
+      this.drawPropabilityGradient()
     }
+  }
+
+  drawPropabilityGradient(): void {
+    let canvas = this.document.getElementById("propabilityGradient") as HTMLCanvasElement
+
+    if ( canvas !== null ) {
+      let ctx = canvas.getContext("2d");
+
+      if (ctx != null ) {
+        // Create gradient
+        var grd = ctx.createLinearGradient(0, 20, 80, 410);
+        grd.addColorStop(0, "red");
+        grd.addColorStop(1, "blue");
+        // Fill with gradient
+        ctx.fillStyle = grd;
+        ctx.fillRect(10, 80, 50, 350);
+        ctx.font = "24px Arial";
+        ctx.fillStyle = "rgb(255, 255, 255)"
+        // Measurement propability
+        ctx.fillText("100%", 8, 35);
+        ctx.fillText("red", 20, 60);
+        ctx.fillText("0%", 20, 460);
+        ctx.fillText("red", 20, 485);
+      }
+    }
+  }
+
+  angleChanged(particleName: string) {
+    if (particleName === 'alice') {
+      this.drawCanvas(this.aliceParticleMeasurement)
+    } else {
+      this.drawCanvas(this.bobParticleMeasurement)
+    }
+  }
+
+  reset() {
+    this.aliceParticleMeasurement.angle = 0
+    this.aliceParticleMeasurement.measurementAngle = null
+    this.aliceParticleMeasurement.measurementValue = null
+    this.aliceParticleMeasurement.particle = new Photon()
+    this.bobParticleMeasurement.angle = 0
+    this.bobParticleMeasurement.measurementAngle = null
+    this.bobParticleMeasurement.measurementValue = null
+    this.bobParticleMeasurement.particle = new Photon()
+    this.photonsSingle = new PhotonsSinglet(
+      this.aliceParticleMeasurement.particle, 
+      this.bobParticleMeasurement.particle
+    )
+    this.photonsSingle.entangle()
+    this.drawCanvas(this.aliceParticleMeasurement)
+    this.drawCanvas(this.bobParticleMeasurement)
   }
 
   rgb(r: number, g: number, b: number) {
@@ -54,32 +138,79 @@ export class QuantumComponent implements OnInit {
     return Math.cos(((index / resolution)) * Math.PI)**2
   }
 
-  drawCanvas(
-    measurementDegree: number,
-    linear: boolean,
-    canvasId: string
+  quantumPropabilities(
+    linear: boolean = true,
+    resolution: number = 4 * 1440,
+    alreadyExecutedMeasurement: ParticleMeasurement
   ) {
-    let canvas = this.document.getElementById(canvasId) as HTMLCanvasElement
+    return Array.from({length: resolution}, (_, index) => {
+      let degreeDifference = 0
+
+      if (alreadyExecutedMeasurement.measurementAngle !== null) {
+        degreeDifference = alreadyExecutedMeasurement.measurementAngle/360 * resolution
+      }
+
+      if (linear) {
+        var prop = this.linearRelation(index - degreeDifference, resolution)
+      } else {
+        var prop = this.quantumRelation(index - degreeDifference, resolution)
+      }
+      
+      let r = prop * 255
+      let b = (1 - prop) * 255
+      return {
+          total: 360/resolution,
+          shade: alreadyExecutedMeasurement.measurementValue ? this.rgb(r, 0, b) : this.rgb(b, 0, r)
+      }
+  });
+
+  }
+  measure(
+    particleName: string
+  ) {
+    let particleMeasurement = this.particleNameToMeasurement[particleName]
+    particleMeasurement.measurementAngle = particleMeasurement.angle
+    particleMeasurement.measurementValue = particleMeasurement.particle.measureSpin(particleMeasurement.measurementAngle)
+    this.drawCanvas(this.aliceParticleMeasurement)
+    this.drawCanvas(this.bobParticleMeasurement)
+  }
+
+  drawCanvas(
+    particleMeasurement: ParticleMeasurement
+  ) {
+    let canvas = this.document.getElementById(particleMeasurement.canvasId) as HTMLCanvasElement
 
     if ( canvas !== null ) {
-      let resolution = 4 * 1440
       let ctx = canvas.getContext("2d");
 
       if (ctx != null ) {
-        const results = Array.from({length: resolution}, (_, index) => {
-            if (linear) {
-              var prop = this.linearRelation(index, resolution)
-            } else {
-              var prop = this.quantumRelation(index, resolution)
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alreadyExecutedMeasurements = this.alredyExecutedMeasurements
+        console.log(particleMeasurement)
+
+        if (particleMeasurement.measurementValue !== null) {
+          var color = particleMeasurement.measurementValue === true ? this.rgb(0, 0, 255) : this.rgb(255, 0, 0)
+          var results = [
+            {
+              total: 360,
+              shade: color
             }
-            
-            let r = prop * 255
-            let b = (1 - prop) * 255
-            return {
-                total: 360/resolution,
-                shade: this.rgb(r, 0, b)
+          ]
+        } else if (alreadyExecutedMeasurements.length === 1) {
+          let oppositeMeasurement = particleMeasurement.canvasId === 'bob' ? 
+            this.aliceParticleMeasurement : this.bobParticleMeasurement
+          var results = this.quantumPropabilities(
+            false, 4 * 1440, oppositeMeasurement
+          )
+        } else {
+          var results = [
+            {
+              total: 360,
+              shade: this.rgb(255, 0, 255)
             }
-        });
+          ]
+        }
+        
         let currentAngle = 90/180 * Math.PI;
         let middle = this.size/2
         let radius = middle/2
@@ -96,6 +227,7 @@ export class QuantumComponent implements OnInit {
             ctx.fillStyle = moodValue.shade;
             ctx.fill();
         }
+
         let out = middle/24
         ctx.setLineDash([2, 5]);
         ctx.lineWidth = 2;
@@ -104,27 +236,43 @@ export class QuantumComponent implements OnInit {
         ctx.moveTo(middle, middle + radius + out);
         ctx.lineTo(middle, middle - radius - out);
         ctx.stroke();
-
-        ctx.font = "24px Arial";
-        ctx.fillStyle = "rgb(255, 255, 255)"
-        // ctx.fillText("0°", middle - 7, 105);
-        // ctx.fillText("180°", middle - 20, middle*2 - 85);
-        // Measurement degree
-        let measurementSize = radius + 10
-        let degreeSize = 2;
-        let startAngle = 0/180 * Math.PI;
-        let x = Math.sin(startAngle + measurementDegree/180 * Math.PI) * measurementSize
-        let y = Math.cos(startAngle + measurementDegree/180 * Math.PI) * measurementSize
-        ctx.fillText(measurementDegree + "°→" + Math.round(100*this.quantumRelation(measurementDegree, 360)) + "%",
-         middle + x + 8, middle - y + 4);
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "white";
         ctx.beginPath();
-        startAngle = -90/180 * Math.PI;
-        ctx.arc(middle, middle, measurementSize, 
-          startAngle + (measurementDegree - degreeSize) / 180 * Math.PI, startAngle + (measurementDegree + degreeSize) / 180 * Math.PI);
-        ctx.lineTo(middle, middle);
-        ctx.fill();
+        ctx.moveTo(middle + radius + out, middle);
+        ctx.lineTo(middle - radius - out, middle);
+        ctx.stroke();
+
+        if (particleMeasurement.measurementAngle === null) {
+          let propability = 50
+
+          if (alreadyExecutedMeasurements.length > 0) {
+            let alreadyExecutedMeasurement = alreadyExecutedMeasurements[0]
+            let degreeDiff = alreadyExecutedMeasurement.measurementAngle != null ?
+              particleMeasurement.angle - alreadyExecutedMeasurement.measurementAngle : particleMeasurement.angle
+            propability = Math.round(100*this.quantumRelation(degreeDiff, 360))
+          }
+
+          ctx.font = "24px Arial";
+          ctx.fillStyle = "rgb(255, 255, 255)"
+          // Measurement propability
+          let measurementSize = radius + 10
+          let degreeSize = 2;
+          let startAngle = 0/180 * Math.PI;
+          let x = Math.sin(startAngle + particleMeasurement.angle/180 * Math.PI) * measurementSize
+          let y = Math.cos(startAngle + particleMeasurement.angle/180 * Math.PI) * measurementSize
+          let gap = particleMeasurement.angle < 181 ? 15 : - 70
+          ctx.fillText(propability + "%",
+          middle + x + gap, middle - y + 4);
+          // Measurement needle
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "white";
+          ctx.beginPath();
+          startAngle = -90/180 * Math.PI;
+          ctx.arc(middle, middle, measurementSize, 
+            startAngle + (particleMeasurement.angle - degreeSize) 
+            / 180 * Math.PI, startAngle + (particleMeasurement.angle + degreeSize) / 180 * Math.PI);
+          ctx.lineTo(middle, middle);
+          ctx.fill();
+        }
       }
     }
   }
@@ -136,15 +284,15 @@ export class QuantumComponent implements OnInit {
         type: 'line',
         data: this.propabilityQuantumChartData,
         label: 'Quantum',
-        backgroundColor: 'rgba(148,0,0,0.2)',
-        borderColor: 'rgba(148,0,0,1)'
+        backgroundColor: 'rgba(255,0,0,0.2)',
+        borderColor: 'rgba(255,0,0,1)'
       },
       {
         type: 'line',
         data: this.propabilityLinearChartData,
         label: 'Linear',
-        backgroundColor: 'rgba(0,148,0,0.2)',
-        borderColor: 'rgba(0,148,0,1)',
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderColor: 'rgba(255,255,255,1)',
       }
     ]
   };
@@ -179,6 +327,9 @@ export class QuantumComponent implements OnInit {
         grid: {
           color: 'rgba(255,255,255,0.3)',
         },
+        ticks: {
+          color: 'white',
+        }
       }
     }
   }
@@ -227,4 +378,17 @@ export class QuantumComponent implements OnInit {
     this.chart?.update();
   }
 
+  get alredyExecutedMeasurements(): ParticleMeasurement[] {
+    let alreadyMeasured = []
+
+    if (this.aliceParticleMeasurement.measurementValue !== null) {
+      alreadyMeasured.push(this.aliceParticleMeasurement)
+    }
+    
+    if (this.bobParticleMeasurement.measurementValue !== null) {
+      alreadyMeasured.push(this.bobParticleMeasurement)
+    }
+
+    return alreadyMeasured
+  }
 }

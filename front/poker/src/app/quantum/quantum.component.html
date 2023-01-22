@@ -1,4 +1,46 @@
-<canvas id="myCanvas" [width]="size + 50" [height]="size"></canvas>
+<div class="main">
+    <div class="center">
+        <button (click)="reset()">Reset</button>
+    </div>
+    <div class="mesurementInstruments">
+        <ng-container
+            *ngFor="let particleMeasurement of 
+            [aliceParticleMeasurement, bobParticleMeasurement]; let i = index"
+        >
+            <div 
+                class="mesurementInstrument" 
+                
+            >
+                <div class="center">
+                    <h3>{{ particleMeasurement.canvasId.toUpperCase() }}</h3>
+                </div>
+                <div>
+                    <canvas id="{{ particleMeasurement.canvasId }}" [width]="size" [height]="size"></canvas>
+                </div>
+                <div class="center">
+                    <input 
+                        type="number"
+                        [(ngModel)]="particleMeasurement.angle"
+                        (change)="angleChanged(particleMeasurement.canvasId)"
+                        [min]="0"
+                        [max]="360"
+                        [step]="5"
+                        [disabled]="particleMeasurement.measurementAngle !== null"
+                    >
+                </div>
+                <div class="center">
+                    <button 
+                        (click)="measure(particleMeasurement.canvasId)"
+                        [disabled]="particleMeasurement.measurementAngle !== null"
+                    >Measure</button>
+                </div>
+            </div>
+            <div *ngIf="i === 0">
+                <canvas id="propabilityGradient" height="490" width="68"></canvas>
+            </div>
+        </ng-container>
+    </div>
+</div>
 <div class="chart">
     <canvas 
         baseChart 

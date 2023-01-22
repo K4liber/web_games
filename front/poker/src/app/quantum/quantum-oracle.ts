@@ -185,3 +185,8 @@ makeExperiment(yDegrees, zDegrees, 75)
 makeExperiment(xDegrees, zDegrees, 25)
 makeExperiment(yDegrees, vDegrees, 25)
 makeExperiment(xDegrees, vDegrees, 0)
+
+export {
+    Photon,
+    PhotonsSinglet
+}
