@@ -7,7 +7,7 @@ import { QuantumComponent } from './quantum/quantum.component';
 const routes: Routes = [
   { path: 'bluff', component: GameComponent },
   { path: 'singlet', component: QuantumComponent },
-  { path: 'home', component: HomeComponent }
+  { path: '', component: HomeComponent }
 ];
 
 @NgModule({
