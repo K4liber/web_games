@@ -1,6 +1,6 @@
 import { Component, Inject, Input, OnInit, ViewChild } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Chart, ChartConfiguration, ChartEvent, ChartType } from 'chart.js';
+import { Chart, ChartConfiguration, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { default as Annotation } from 'chartjs-plugin-annotation';
 import { Photon, PhotonsSinglet } from './quantum-oracle';
@@ -55,8 +55,8 @@ export class QuantumComponent implements OnInit {
     'alice': this.aliceParticleMeasurement,
     'bob': this.bobParticleMeasurement
   }
-  propabilityQuantumChartData = Array.from({length: 13}, (_, index: number) => {
-      let xValue = index * 30
+  propabilityQuantumChartData = Array.from({length: 37}, (_, index: number) => {
+      let xValue = index * 10
       let radians = xValue/180 * Math.PI
       return {
         x: xValue, y: Math.cos(radians/2)**2
@@ -66,7 +66,7 @@ export class QuantumComponent implements OnInit {
   propabilityLinearChartData = Array.from({length: 13}, (_, index: number) => {
       let xValue = index * 30
       return {
-        x: xValue, y: 1 - xValue/180
+        x: xValue, y: Math.abs(1 - xValue/180)
       }
     }
   )
@@ -297,9 +297,15 @@ export class QuantumComponent implements OnInit {
 
   public lineChartOptions: ChartConfiguration['options'] = {
     responsive: true,
+    layout: {
+      padding: 20
+    },
     elements: {
       line: {
-        tension: 0.5
+        tension: 0.1
+      },
+      point:{
+        radius: 0
       }
     },
     scales: {
@@ -311,13 +317,15 @@ export class QuantumComponent implements OnInit {
           text: 'Angle difference [°]'
         },
         min: 0,
-        max: 180,
+        max: 360,
+        
         grid: {
           color: 'rgba(255,255,255,0.3)',
         },
         ticks: {
           color: 'white',
           sampleSize: 0.2,
+          stepSize: 30
         }
       },
       y: {
@@ -331,50 +339,10 @@ export class QuantumComponent implements OnInit {
       }
     }
   }
-  
-  private newLabel? = 'New label';
+
   public lineChartType: ChartType = 'line';
 
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
-
-  // events
-  public chartClicked({ event, active }: { event?: ChartEvent, active?: {}[] }): void {
-    console.log(event, active);
-  }
-
-  public chartHovered({ event, active }: { event?: ChartEvent, active?: {}[] }): void {
-    console.log(event, active);
-  }
-
-  public hideOne(): void {
-    const isHidden = this.chart?.isDatasetHidden(1);
-    this.chart?.hideDataset(1, !isHidden);
-  }
-
-  public pushOne(): void {
-    this.lineChartData.datasets.forEach((x, i) => {
-      const num = 5
-      x.data.push(num);
-    });
-    this.lineChartData?.labels?.push(`Label ${ this.lineChartData.labels.length }`);
-
-    this.chart?.update();
-  }
-
-  public changeColor(): void {
-    this.lineChartData.datasets[2].borderColor = 'green';
-    this.lineChartData.datasets[2].backgroundColor = `rgba(0, 255, 0, 0.3)`;
-
-    this.chart?.update();
-  }
-
-  public changeLabel(): void {
-    const tmp = this.newLabel;
-    this.newLabel = this.lineChartData.datasets[2].label;
-    this.lineChartData.datasets[2].label = tmp;
-
-    this.chart?.update();
-  }
 
   get alredyExecutedMeasurements(): ParticleMeasurement[] {
     let alreadyMeasured = []

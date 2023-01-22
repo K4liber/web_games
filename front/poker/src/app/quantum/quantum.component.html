@@ -28,7 +28,7 @@
                         [disabled]="particleMeasurement.measurementAngle !== null"
                     >
                 </div>
-                <div class="center">
+                <div class="center margin-standard">
                     <button 
                         (click)="measure(particleMeasurement)"
                         [disabled]="particleMeasurement.measurementAngle !== null"
@@ -47,7 +47,5 @@
         [data]="lineChartData"
         [options]="lineChartOptions"
         [type]="lineChartType"
-        (chartHover)="chartHovered($event)"
-        (chartClick)="chartClicked($event)"
     ></canvas>
 </div>
