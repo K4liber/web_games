@@ -1,0 +1,38 @@
+.main{
+    max-width: 1000px;
+}
+
+.mesurementInstruments {
+    width: auto;
+    margin: 0 auto;
+    display: flex;
+    
+}
+
+.mesurementInstrument{
+    margin: 0 auto;
+    border: 1px solid;
+    display: block;
+}
+
+.chart {
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 30px;
+}
+
+.center {
+    text-align: center;
+}
+
+.main {
+    color: white;
+}
+
+.margin-standard {
+    margin: 8px;
+}
+
+.padding-standard {
+    padding: 8px;
+}
