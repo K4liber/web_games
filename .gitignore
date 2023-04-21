@@ -49,5 +49,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
-# IDE
-.vscode/*
+# Packages
+back/Pipfile.lock

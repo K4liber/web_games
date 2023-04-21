@@ -1,0 +1,17 @@
+{
+    // ***** PYTHON *****
+    // TESTING
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    // LINTING
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": [
+        "--disable=C0111"
+    ],
+    // ***** EDITOR *****
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    }
+}

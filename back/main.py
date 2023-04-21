@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import logging
-import sys
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
 
@@ -67,8 +66,6 @@ def ready_for_bluff(username):
 
 @socket.on('start_bluff')
 def start_bluff():
-    global game
-
     if game.is_started:
         emit('error', 'Game is already in progress!', room=request.sid)
         return
