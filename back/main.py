@@ -107,8 +107,6 @@ def deal_cards():
 
 @socket.on('selected')
 def selected(selected_guess):
-    global game
-
     if selected_guess == 'check':
         is_in = game.check()
         checking_player = game.get_player_by_sid(request.sid)

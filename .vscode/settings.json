@@ -1,5 +1,8 @@
 {
     // ***** PYTHON *****
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
     // TESTING
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -13,5 +16,6 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
-    }
+    },
+    "python.formatting.provider": "none"
 }
