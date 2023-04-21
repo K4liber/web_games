@@ -1,8 +1,5 @@
 {
     // ***** PYTHON *****
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
     // TESTING
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -10,12 +7,23 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.linting.pylintArgs": [
-        "--disable=C0111"
+        "--rcfile=${workspaceFolder}/back/.pylintrc",
     ],
     // ***** EDITOR *****
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },
-    "python.formatting.provider": "none"
+    "editor.rulers": [
+        80
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "80",
+        "--experimental-string-processing"
+    ],
 }

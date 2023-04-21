@@ -9,6 +9,19 @@ repos:
         types: [python]
         args:
           [
+            "--rcfile=back/.pylintrc",
             "-rn",
             "-sn"
+          ]
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: mypy
+        language: system
+        types: [python]
+        args: 
+          [
+            --no-strict-optional, 
+            --ignore-missing-imports
           ]
