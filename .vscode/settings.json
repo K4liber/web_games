@@ -9,6 +9,13 @@
     "python.linting.pylintArgs": [
         "--rcfile=${workspaceFolder}/back/.pylintrc",
     ],
+    // FORMATTING
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "80",
+        "--experimental-string-processing"
+    ],
     // ***** EDITOR *****
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
@@ -17,13 +24,8 @@
     "editor.rulers": [
         80
     ],
+    // ***** OTHERS  *****
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length",
-        "80",
-        "--experimental-string-processing"
-    ],
 }
