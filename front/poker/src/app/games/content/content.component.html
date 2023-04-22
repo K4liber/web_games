@@ -1,0 +1,50 @@
+<div 
+    class="standard-container main-div"
+    *ngIf="showContent"
+>
+    <table>
+        <tr>
+            <td>
+                Name
+            </td>
+            <td>
+                Public
+            </td>
+            <td>
+                Players
+            </td>
+            <td>
+                Action
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input>
+            </td>
+            <td>
+                <input>
+            </td>
+            <td>
+                <input>
+            </td>
+            <td>
+                <button>
+                    Create
+                </button>
+            </td>
+        </tr>
+        <ng-container *ngFor="let game of games">
+            <tr class="game">
+                <td>{{game.name}}</td>
+                <td>{{game.isPublic}}</td>
+                <td>{{game.players.length}}</td>
+                <button 
+                    *ngIf="gameService.currentGame === null"
+                    (click)="joinGame(game.name)"
+                >
+                    Join
+                </button>
+            </tr>
+        </ng-container>
+    </table>
+</div>

@@ -17,15 +17,15 @@
         "--experimental-string-processing"
     ],
     // ***** EDITOR *****
-    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },
     "editor.rulers": [
         80
     ],
-    // ***** OTHERS  *****
+    // ***** LANGUAGE SPECIFIC  *****
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
     },
 }

@@ -9,7 +9,9 @@ import { Title } from '@angular/platform-browser';
 export class GameComponent implements OnInit {
   isLogged: boolean = false;
   username: string = '';
-  currentView: string = 'table'
+  currentView: string = 'games'
+  currentGame: string | null = null
+  doShowGames: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowChat: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowLastSettlement: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -20,6 +22,7 @@ export class GameComponent implements OnInit {
     private changeDetectorRef: ChangeDetectorRef
   ) {
     this.viewNameToEmitter = {
+      'games': this.doShowGames,
       'table': this.doShowBluff,
       'chat': this.doShowChat,
       'last': this.doShowLastSettlement
@@ -35,9 +38,10 @@ export class GameComponent implements OnInit {
       this.isLogged = false;
       this.doShowBluff.emit(false)
       this.doShowChat.emit(false)
+      this.doShowGames.emit(false)
     } else {
       this.isLogged = true;
-      this.doShowBluff.emit(true)
+      this.doShowGames.emit(true)
     }
     
     this.username = username

@@ -5,6 +5,11 @@
       <app-login
         (usernameChanged)="usernameChanged($event)"
       ></app-login>
+      <games-content
+        [username]="username"
+        [doShow]="doShowGames"
+      >
+      </games-content>
       <bluff-content
         [username]="username"
         [doShow]="doShowBluff"
@@ -23,23 +28,29 @@
         class="footer"
       >
         <button 
+            (click)="selectView('games')"
+            class="option"
+            *ngIf="this.isLogged"
+            [disabled]="currentView === 'games'"
+        >Games</button>
+        <button 
             (click)="selectView('table')"
             class="option"
             *ngIf="this.isLogged"
-            [disabled]="currentView === 'table'"
+            [disabled]="currentView === 'table' || currentGame === null"
         >Table</button>
         <button 
               (click)="selectView('chat')"
               class="option"
               *ngIf="this.isLogged"
-              [disabled]="currentView === 'chat'"
+              [disabled]="currentView === 'chat' || currentGame === null"
           >Chat</button>
         <button 
               (click)="selectView('last')"
               class="option"
               *ngIf="this.isLogged"
-              [disabled]="currentView === 'last'"
-          >Last Settlement</button>
+              [disabled]="currentView === 'last' || currentGame === null"
+          >Previous</button>
         </div>
     </div>
   </div>
