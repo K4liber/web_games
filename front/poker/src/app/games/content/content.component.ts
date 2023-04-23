@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { GameService } from 'src/app/game.service';
-import { Game } from '../types';
 
 @Component({
   selector: 'games-content',
@@ -12,19 +11,8 @@ export class GamesContentComponent implements OnInit, OnChanges {
   @Input() doShow : EventEmitter<boolean> | null = null;
 
   showContent: boolean = false;
-  games: Game[] = [
-    {
-      name: 'Dota',
-      host: 'Jasiek',
-      players: [
-
-      ],
-      isPublic: true,
-      isStarted: false,
-      isFull: false
-    }
-  ]
-  gameService: GameService
+  gameService: GameService;
+  currentView: string = 'list';
 
   constructor(
     gameService: GameService
@@ -50,8 +38,7 @@ export class GamesContentComponent implements OnInit, OnChanges {
   ngOnInit(): void {
   }
 
-  joinGame(gameName: string): void {
-    this.gameService.currentGame = gameName
+  selectView(view: string): void {
+    this.currentView = view
   }
-
 }

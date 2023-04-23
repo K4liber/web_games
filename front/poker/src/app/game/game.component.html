@@ -29,29 +29,29 @@
       >
         <button 
             (click)="selectView('games')"
-            class="option"
+            class="option4"
             *ngIf="this.isLogged"
             [disabled]="currentView === 'games'"
         >Games</button>
         <button 
             (click)="selectView('table')"
-            class="option"
+            class="option4"
             *ngIf="this.isLogged"
-            [disabled]="currentView === 'table' || currentGame === null"
+            [disabled]="currentView === 'table' || this.gameService.currentGame === null"
         >Table</button>
         <button 
               (click)="selectView('chat')"
-              class="option"
+              class="option4"
               *ngIf="this.isLogged"
-              [disabled]="currentView === 'chat' || currentGame === null"
+              [disabled]="currentView === 'chat' || this.gameService.currentGame === null"
           >Chat</button>
         <button 
               (click)="selectView('last')"
-              class="option"
+              class="option4"
               *ngIf="this.isLogged"
-              [disabled]="currentView === 'last' || currentGame === null"
+              [disabled]="currentView === 'last' || this.gameService.currentGame === null"
           >Previous</button>
-        </div>
+      </div>
     </div>
   </div>
   

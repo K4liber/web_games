@@ -2,49 +2,26 @@
     class="standard-container main-div"
     *ngIf="showContent"
 >
-    <table>
-        <tr>
-            <td>
-                Name
-            </td>
-            <td>
-                Public
-            </td>
-            <td>
-                Players
-            </td>
-            <td>
-                Action
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input>
-            </td>
-            <td>
-                <input>
-            </td>
-            <td>
-                <input>
-            </td>
-            <td>
-                <button>
-                    Create
-                </button>
-            </td>
-        </tr>
-        <ng-container *ngFor="let game of games">
-            <tr class="game">
-                <td>{{game.name}}</td>
-                <td>{{game.isPublic}}</td>
-                <td>{{game.players.length}}</td>
-                <button 
-                    *ngIf="gameService.currentGame === null"
-                    (click)="joinGame(game.name)"
-                >
-                    Join
-                </button>
-            </tr>
-        </ng-container>
-    </table>
+    <games-list
+        *ngIf="currentView === 'list'"
+    >
+    </games-list>
+    <games-create
+        *ngIf="currentView === 'create'"
+    >
+    </games-create>
+    <div
+        class="footerSecondary"
+      >
+        <button 
+            (click)="selectView('list')"
+            class="option2"
+            [disabled]="currentView === 'list'"
+        >List</button>
+        <button 
+            (click)="selectView('create')"
+            class="option2"
+            [disabled]="currentView === 'create' || gameService.currentGame !== null"
+        >Create</button>
+    </div>
 </div>

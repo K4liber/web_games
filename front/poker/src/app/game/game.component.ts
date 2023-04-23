@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-game',
@@ -7,10 +8,10 @@ import { Title } from '@angular/platform-browser';
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
+  gameService: GameService
   isLogged: boolean = false;
   username: string = '';
   currentView: string = 'games'
-  currentGame: string | null = null
   doShowGames: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowChat: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -18,9 +19,11 @@ export class GameComponent implements OnInit {
   viewNameToEmitter: Record<string, EventEmitter<boolean>>
 
   constructor(
+    gameService: GameService,
     private titleService: Title,
     private changeDetectorRef: ChangeDetectorRef
   ) {
+    this.gameService = gameService
     this.viewNameToEmitter = {
       'games': this.doShowGames,
       'table': this.doShowBluff,

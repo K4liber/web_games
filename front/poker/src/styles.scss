@@ -84,3 +84,53 @@ body {
 .bold {
     font-weight: bold;
 }
+
+$option-margin: 4px;
+
+@mixin option($numberOfOptions) {
+    display: inline-block;
+    height: -webkit-calc(100% - $option-margin);
+    height:    -moz-calc(100% - $option-margin);
+    height:         calc(100% - $option-margin);
+    width: -webkit-calc(100% / $numberOfOptions - $option-margin);
+    width:    -moz-calc(100% / $numberOfOptions - $option-margin);
+    width:         calc(100% / $numberOfOptions - $option-margin);
+    margin: calc($option-margin / 2);
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.option4 {
+    @include option(4);
+}
+
+.option2 {
+    @include option(2);
+}
+
+$footer-height: 35px;
+
+@mixin footer($bottom) {
+    position: absolute;
+    background-color: rgba(192, 192, 192);
+    width: 100%;
+    height: $footer-height;
+    bottom: $bottom;
+}
+
+.footer {
+    @include footer(0px);
+}
+
+.footerSecondary {
+    @include footer($footer-height);
+}
+
+.table {
+    margin: 1%;
+    width: 98%;
+    border-collapse: separate; 
+    border-spacing: 1em;
+}

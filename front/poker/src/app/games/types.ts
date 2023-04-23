@@ -3,6 +3,6 @@ export type Game = {
     host: string
     players: string[]
     isPublic: boolean
+    maxNumberOfPlayers: number
     isStarted: boolean
-    isFull: boolean
 }

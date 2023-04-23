@@ -1,0 +1,71 @@
+<div>
+    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+        <table class="table">
+            <tr>
+                <td>
+                    <label>
+                        Name
+                    </label>
+                </td>
+                <td>
+                    <input 
+                        id="name" 
+                        type="text" 
+                        formControlName="name"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        Public
+                    </label>
+                </td>
+                <td>
+                    <input 
+                        id="isPublic" 
+                        type="checkbox" 
+                        formControlName="isPublic"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        Password
+                    </label>
+                </td>
+                <td>
+                    <input 
+                        id="password" 
+                        type="password" 
+                        formControlName="password"
+                        [attr.disabled]="isPasswordNeeded === false"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>
+                        Max players
+                    </label>
+                </td>
+                <td>
+                    <input 
+                        id="maxNumberOfPlayers" 
+                        type="number" 
+                        formControlName="maxNumberOfPlayers"
+                        min="2"
+                        max="6"
+                        pattern="\d*"
+                    >
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="button" type="submit">Create</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
