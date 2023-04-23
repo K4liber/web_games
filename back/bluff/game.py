@@ -188,6 +188,9 @@ class Game:
         )
 
     def add_player(self, sid: str, username: str):
+        if sid in {player.sid for player in self._players}:
+            raise ValueError(f'SID "{sid}" already in the game.')
+
         self._players.append(Player(sid=sid, username=username, cards=set()))
 
     def remove_player(self, player: Player):

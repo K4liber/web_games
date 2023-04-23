@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { SocketService } from 'src/app/app-socket.service';
 
 @Component({
   selector: 'games-create',
@@ -11,7 +12,9 @@ export class CreateComponent implements OnInit {
   gameForm: FormGroup
   isPasswordNeeded: boolean = false
 
-  constructor() { 
+  constructor(
+    private socket: SocketService
+  ) { 
     this.gameForm = new FormGroup({
       name: new FormControl(''),
       isPublic: new FormControl(!this.isPasswordNeeded),
@@ -46,6 +49,7 @@ export class CreateComponent implements OnInit {
 
   onSubmit() {
     console.log(this.gameForm.value);
+    this.socket.emit('create_game', this.gameForm.value)
   }
   
 }

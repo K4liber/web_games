@@ -1,5 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { SocketService } from '../app-socket.service';
 import { GameService } from '../game.service';
 
 @Component({
@@ -21,7 +22,8 @@ export class GameComponent implements OnInit {
   constructor(
     gameService: GameService,
     private titleService: Title,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private socket: SocketService
   ) {
     this.gameService = gameService
     this.viewNameToEmitter = {
@@ -30,6 +32,11 @@ export class GameComponent implements OnInit {
       'chat': this.doShowChat,
       'last': this.doShowLastSettlement
     }
+    this.socket.on('join_succeess', (join_data: [string, string[]]) => {
+      this.gameService.currentGame = join_data[0]
+      this.gameService.players.emit(join_data[1])
+      this.selectView('table')
+    })
   }
 
   ngOnInit() {

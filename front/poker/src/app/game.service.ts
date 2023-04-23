@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
@@ -6,7 +6,8 @@ import { Injectable } from '@angular/core';
 export class GameService {
   currentGame: string | null = null
   username: string | null = null
-  
+  players: EventEmitter<string[]> = new EventEmitter<string[]>();
+
   constructor() { 
 
   }

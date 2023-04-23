@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import logging
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
+from bluff.table.data import TableData
+from bluff.table.in_memory import TablesInMemory
 
 from bluff.game import Game
 
@@ -32,8 +34,9 @@ class _Const:
 
 
 CONST = _Const()
-sid_to_username = dict()
-game = Game()
+sid_to_username: dict[str, str] = dict()
+tables = TablesInMemory()
+sid_to_table_name: dict[str, str] = dict()
 
 
 @socket.on("connect")
@@ -49,24 +52,12 @@ def _on_username(username: str):
     sid_to_username[request.sid] = username  # type: ignore[attr-defined]
 
 
-@socket.on("ready_for_bluff")
-def _ready_for_bluff(username: str):
-    current_number_of_players = len(game.players)
-
-    if current_number_of_players == CONST.MAX_PLAYERS:
-        _logger.info("To much players!")
-    else:
-        game.add_player(request.sid, username)  # type: ignore[attr-defined]
-        _logger.info(
-            f"Adding player: {request.sid}"  # type: ignore[attr-defined]
-        )
-
-        for player in game.players:
-            emit("ready_players", game.players_usernames, room=player.sid)
-
-
 @socket.on("start_bluff")
 def _start_bluff():
+    game = tables.get_game(
+        table_name=sid_to_table_name[request.sid]  # type: ignore[attr-defined]
+    )
+
     if game.is_started:
         emit("error", "Game is already in progress!", room=request.sid)
         return
@@ -96,6 +87,10 @@ def _start_bluff():
 
 
 def _send_turn_info(is_start: bool = False):
+    game = tables.get_game(
+        table_name=sid_to_table_name[request.sid]  # type: ignore[attr-defined]
+    )
+
     for player in game.players:
         if player.sid == game.current_player.sid:
             _logger.info(f"{game.current_player} turn!")
@@ -116,6 +111,9 @@ def _send_turn_info(is_start: bool = False):
 
 
 def _deal_cards():
+    game = tables.get_game(
+        table_name=sid_to_table_name[request.sid]  # type: ignore[attr-defined]
+    )
     _logger.info(
         "Dealing cards between following players:        "
         f" {game.players_usernames}"
@@ -129,6 +127,10 @@ def _deal_cards():
 
 @socket.on("selected")
 def _selected(selected_guess):
+    game = tables.get_game(
+        table_name=sid_to_table_name[request.sid]  # type: ignore[attr-defined]
+    )
+
     if selected_guess == "check":
         is_in = game.check()
         checking_player = game.get_player_by_sid(request.sid)
@@ -186,6 +188,11 @@ def _selected(selected_guess):
 
     game.set_current_guess(selected_guess)
     guessing_player = game.get_player_by_sid(request.sid)
+
+    if guessing_player is None:
+        _logger.warning(f"User with SID = {request.sid} do not play anymore.")
+        return
+
     cards_length = len(guessing_player.cards)
     cards_str = "cards" if cards_length > 1 else "card"
     info = (
@@ -201,15 +208,22 @@ def _selected(selected_guess):
 
 @socket.on("disconnect")
 def _disconnect():
-    _logger.info(f"[DISCONNECT]: {request.sid}")
+    sid = request.sid  # type: ignore[attr-defined]
+    _logger.info(f"[DISCONNECT]: {sid}")
 
     if request.sid not in sid_to_username:
         _logger.warning(f"Unknown user: {request.sid}")
         return
 
+    table_name = sid_to_table_name.get(request.sid, None)
+
+    if table_name is None:
+        return
+
+    game = tables.get_game(table_name=table_name)
     disconnected_player = game.get_player_by_sid(request.sid)
 
-    if disconnected_player:
+    if game.is_started and disconnected_player:
         if len(game.players) == 2:
             for player in game.players:
                 emit("ready_players", [], room=player.sid)
@@ -234,6 +248,10 @@ def _disconnect():
         emit("user_disconnected", sid_to_username[request.sid], room=sid)
 
     del sid_to_username[request.sid]
+    game.remove_player(disconnected_player)
+
+    if len(game.players) == 0:
+        tables.remove_table(table_name=table_name)
 
 
 @socket.on("notify")
@@ -244,6 +262,91 @@ def _notify(user):
 @socket.on("data")
 def _on_data(data):
     emit("returndata", data, broadcast=True)
+
+
+@socket.on("get_games")
+def _get_games():
+    emit(
+        "games_list",
+        [table.dict for table in tables.get_tables()],
+        room=request.sid,
+    )
+
+
+@socket.on("create_game")
+def _create_game(table_data):
+    _logger.info(f"Creating table: {table_data}")
+    sid = request.sid  # type: ignore[attr-defined]
+    game = Game()
+    table_data = TableData(
+        host=request.sid,
+        name=table_data["name"],
+        max_players=table_data["maxNumberOfPlayers"],
+        password=table_data["password"],
+        is_public=table_data["isPublic"],
+        game=game,
+    )
+    tables.add_table(table_data=table_data)
+    game.add_player(sid, sid_to_username[sid])
+    sid_to_table_name[sid] = table_data.name
+    emit("join_succeess", [table_data.name, game.players_usernames], room=sid)
+    emit(
+        "games_list",
+        [table.dict for table in tables.get_tables()],
+        room=request.sid,
+    )
+
+
+@socket.on("join_game")
+def _join_game(table_name: str):
+    sid = request.sid  # type: ignore[attr-defined]
+    username = sid_to_username[sid]
+    _logger.info(f"Player {username} joining table: {table_name}")
+    table_data = tables.get_table_data(table_name)
+    game = table_data.game
+
+    if game.is_started:
+        _logger.info(f"Table {table_name} is already started")
+        return
+
+    if len(game.players) >= table_data.max_players:
+        _logger.info(f"Table {table_name} is full")
+        return
+
+    game.add_player(sid=sid, username=username)
+    _logger.info(f"Adding player: {sid}")
+    sid_to_table_name[sid] = table_data.name
+    emit("join_succeess", [table_data.name, game.players_usernames], room=sid)
+
+    for player in game.players:
+        emit("ready_players", game.players_usernames, room=player.sid)
+
+
+@socket.on("leave")
+def _leave():
+    sid = request.sid  # type: ignore[attr-defined]
+    _logger.info(f"Leaving table: {sid_to_table_name[sid]}")
+    table_name = sid_to_table_name.get(sid, None)
+
+    if table_name is None:
+        return
+
+    game = tables.get_game(table_name=table_name)
+    player = game.get_player_by_sid(sid)
+    game.remove_player(player)
+
+    if len(game.players) == 0:
+        tables.remove_table(table_name=table_name)
+        emit(
+            "games_list",
+            [table.dict for table in tables.get_tables()],
+            room=request.sid,
+        )
+    else:
+        game.reset()
+
+        for player in game.players:
+            emit("ready_players", game.players_usernames, room=player.sid)
 
 
 if __name__ == "__main__":

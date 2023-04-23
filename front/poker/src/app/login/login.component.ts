@@ -1,5 +1,6 @@
-import { ChangeDetectorRef, Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { SocketService } from '../app-socket.service';
+import { GameService } from '../game.service';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,8 @@ export class LoginComponent implements OnInit {
   @Output() usernameChanged = new EventEmitter<string>();
   
   constructor(
-    private socket: SocketService
+    private socket: SocketService,
+    private gameService: GameService
   ) {
 
   }
@@ -63,6 +65,8 @@ export class LoginComponent implements OnInit {
   }
 
   logout() {
+    this.gameService.username = null
+    this.gameService.currentGame = null
     this.socket.disconnect()
   }
 

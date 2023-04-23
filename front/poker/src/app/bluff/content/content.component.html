@@ -4,31 +4,24 @@
 >
     <div
         class="room-info"
-        *ngIf="progress.length === 0 || !isPlayerReady"
+        *ngIf="progress.length === 0"
     >
-        <button 
-            *ngIf="!isPlayerReady"
-            (click)="play()"
-            class="standard-space"
-        >
-            I am ready to play Bluff!
-        </button>
         <div
             class="standard-padding"
-            *ngIf="isPlayerReady && hand.length === 0"
+            *ngIf="hand.length === 0"
         >
             Following players are ready: {{ players }}
         </div>
     </div>
     <div 
         class="hand-title"
-        *ngIf="isPlayerReady && hand.length !== 0"
+        *ngIf="hand.length !== 0"
     >
         Your hand:
     </div>
     <div 
         class="hand"
-        *ngIf="isPlayerReady && hand.length !== 0"
+        *ngIf="hand.length !== 0"
     >
         <div class="card" *ngFor="let card of hand">
             <img [src]="getCardImageSrc(card)" alt="image">

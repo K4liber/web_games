@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
 import { getCardImageSrc, getTimeNowString } from 'src/app/common';
+import { GameService } from 'src/app/game.service';
 
 @Component({
   selector: 'bluff-content',
@@ -48,7 +49,6 @@ export class ContentComponent implements OnInit, OnChanges {
   showContent: boolean = false;
   isGameReady: boolean = false;
   isStart: boolean = false;
-  isPlayerReady: boolean = false;
   hand: [string, string][] = []
   possibleGuesses: string[] | null = null
   selectedSequence: string = ''
@@ -65,8 +65,13 @@ export class ContentComponent implements OnInit, OnChanges {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private socket: SocketService
-  ) { }
+    private socket: SocketService,
+    private gameService: GameService
+  ) {
+    gameService.players.subscribe(players => {
+      this.players = players
+    })
+  }
   
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['doShow'] && changes['doShow'].currentValue) {
@@ -111,7 +116,6 @@ export class ContentComponent implements OnInit, OnChanges {
       this.addToProgress("[" + username + "] exited the game.")
     })
     this.socket.on('finished', () => {
-      this.isPlayerReady = false
       this.isGameReady = false
       this.possibleGuesses = null
       this.hand = []
@@ -171,7 +175,6 @@ export class ContentComponent implements OnInit, OnChanges {
     this.isModalOpen = false;
     this.isGameReady = false;
     this.isStart = false;
-    this.isPlayerReady = false;
     this.hand = []
     this.possibleGuesses = null
     this.selectedSequence = ''
@@ -185,8 +188,6 @@ export class ContentComponent implements OnInit, OnChanges {
   }
 
   onReadyPlayers(players: string[]) {
-    console.log(players)
-
     if (players.length === 0) {
       this.stopGame()
     } else {
@@ -195,12 +196,6 @@ export class ContentComponent implements OnInit, OnChanges {
     }
     
     this.changeDetectorRef.detectChanges()
-  }
-
-  play() {
-    this.progress = []
-    this.socket.emit('ready_for_bluff', this.username)
-    this.isPlayerReady = true
   }
 
   start() {
