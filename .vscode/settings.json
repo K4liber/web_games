@@ -9,6 +9,10 @@
     "python.linting.pylintArgs": [
         "--rcfile=${workspaceFolder}/back/.pylintrc",
     ],
+    // ANALYSIS
+    "python.analysis.extraPaths": [
+        "back"
+    ],
     // FORMATTING
     "python.formatting.provider": "black",
     "python.formatting.blackArgs": [
@@ -17,15 +21,15 @@
         "--experimental-string-processing"
     ],
     // ***** EDITOR *****
-    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.organizeImports": true
     },
     "editor.rulers": [
         80
     ],
-    // ***** OTHERS  *****
+    // ***** LANGUAGE SPECIFIC  *****
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
     },
 }

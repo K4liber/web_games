@@ -3,7 +3,7 @@ import logging
 import re
 from typing import Callable
 
-from bluff.sequence import SEQUENCE
+from bluff.game.card import SEQUENCE
 
 _logger = logging.getLogger(__name__)
 

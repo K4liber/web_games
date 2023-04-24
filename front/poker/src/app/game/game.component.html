@@ -2,17 +2,17 @@
     <div
       class="vertical-center content-container"
     >
-      <app-login
-        (usernameChanged)="usernameChanged($event)"
-      ></app-login>
+      <app-login></app-login>
+      <games-content
+        [doShow]="doShowGames"
+      >
+      </games-content>
       <bluff-content
-        [username]="username"
         [doShow]="doShowBluff"
         (myTurn)="myTurn($event)"
       >
       </bluff-content>
       <chat-content
-        [username]="username"
         [doShow]="doShowChat"
       ></chat-content>
       <app-last-settlement
@@ -23,24 +23,30 @@
         class="footer"
       >
         <button 
+            (click)="selectView('games')"
+            class="option4"
+            *ngIf="this.gameService.getUsername() !== null"
+            [disabled]="currentView === 'games'"
+        >Games</button>
+        <button 
             (click)="selectView('table')"
-            class="option"
-            *ngIf="this.isLogged"
-            [disabled]="currentView === 'table'"
+            class="option4"
+            *ngIf="this.gameService.getUsername() !== null"
+            [disabled]="currentView === 'table' || this.gameService.getCurrentGame() === null"
         >Table</button>
         <button 
               (click)="selectView('chat')"
-              class="option"
-              *ngIf="this.isLogged"
-              [disabled]="currentView === 'chat'"
+              class="option4"
+              *ngIf="this.gameService.getUsername() !== null"
+              [disabled]="currentView === 'chat' || this.gameService.getCurrentGame() === null"
           >Chat</button>
         <button 
               (click)="selectView('last')"
-              class="option"
-              *ngIf="this.isLogged"
-              [disabled]="currentView === 'last'"
-          >Last Settlement</button>
-        </div>
+              class="option4"
+              *ngIf="this.gameService.getUsername() !== null"
+              [disabled]="currentView === 'last' || this.gameService.getCurrentGame() === null"
+          >Previous</button>
+      </div>
     </div>
   </div>
   

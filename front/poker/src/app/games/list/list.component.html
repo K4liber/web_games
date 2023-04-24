@@ -1,0 +1,49 @@
+<div class="games-list">
+    <table class="table">
+        <tr>
+            <td>
+                Name
+            </td>
+            <td>
+                Public
+            </td>
+            <td>
+                Players
+            </td>
+            <td>
+                Started
+            </td>
+            <td class="actionButton">
+                <button 
+                    (click)="refreshList()"
+                >Refresh
+                </button>
+            </td>
+        </tr>
+        <ng-container *ngFor="let game of games">
+            <tr class="game">
+                <td>{{game.name}}</td>
+                <td>{{game.isPublic}}</td>
+                <td>{{game.players.length}} / {{game.maxNumberOfPlayers}}</td>
+                <td>{{game.isStarted}}</td>
+                <td class="actionButton">
+                    <button 
+                    *ngIf="gameService.getCurrentGame() === null"
+                    (click)="joinGame(game.name)"
+                    [disabled]="gameService.getCurrentGame() !== null || 
+                        game.isStarted ||
+                        game.players.length === game.maxNumberOfPlayers"
+                    >
+                        Join
+                    </button>
+                    <button 
+                        *ngIf="gameService.getCurrentGame() === game.name"
+                        (click)="leaveGame()"
+                    >
+                        Leave
+                    </button>
+                </td>
+            </tr>
+        </ng-container>
+    </table>
+</div>

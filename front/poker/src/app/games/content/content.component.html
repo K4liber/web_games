@@ -1,0 +1,29 @@
+<div 
+    class="standard-container main-div"
+    *ngIf="showContent"
+>
+    <games-list
+        class="page"
+        *ngIf="currentView === 'list'"
+    >
+    </games-list>
+    <games-create
+        class="page"
+        *ngIf="currentView === 'create'"
+    >
+    </games-create>
+    <div
+        class="footerSecondary"
+      >
+        <button 
+            (click)="selectView('list')"
+            class="option2"
+            [disabled]="currentView === 'list'"
+        >List</button>
+        <button 
+            (click)="selectView('create')"
+            class="option2"
+            [disabled]="currentView === 'create' || gameService.getCurrentGame() !== null"
+        >Create</button>
+    </div>
+</div>

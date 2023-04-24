@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SocketService } from 'src/app/app-socket.service';
 import { getTimeNowString } from 'src/app/common';
+import { GameService } from 'src/app/game.service';
 import { Message } from '../types';
 
 @Component({
@@ -22,7 +23,6 @@ import { Message } from '../types';
   ]
 })
 export class ContentComponent implements OnInit, OnChanges {
-  @Input() username: string = ''
   @Input() doShow : EventEmitter<boolean> | null = null;
   
   messages: Message[] = [];
@@ -32,14 +32,19 @@ export class ContentComponent implements OnInit, OnChanges {
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
-    private socket: SocketService
-  ) { }
+    private socket: SocketService,
+    private gameService: GameService
+  ) {
+    this.gameService.gameChange.subscribe((game) => {
+      this.messages = []
+    })
+  }
 
   ngOnInit(): void {
     this.socket.on('notify', (message: string) => {
       this.onNotify(message)
     })
-    this.socket.on('returndata', (message: string) => {
+    this.socket.on('onMessage', (message: string) => {
       this.onNotify(message)
     })
     this.socket.on('user_disconnected', (username: string) => {
@@ -90,7 +95,10 @@ export class ContentComponent implements OnInit, OnChanges {
   }
 
   submitMessage() {
-    this.socket.emit('data', "[" + this.username + "]: " + this.currentMessage);
+    this.socket.emit(
+      'message', 
+      "[" + this.gameService.getUsername() + "]: " + this.currentMessage
+    );
     this.currentMessage = ''
   }
 

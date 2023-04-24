@@ -1,0 +1,15 @@
+.game {
+    margin: 2px;
+    height: 25px;
+    display:table-row;
+}
+
+.actionButton {
+    width: 80px;
+    text-align: right;
+}
+
+.games-list {
+    max-height: calc(100%);
+    overflow-y: auto;
+}

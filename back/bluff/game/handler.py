@@ -1,81 +1,19 @@
 import copy
-from dataclasses import dataclass
-import hashlib
-import itertools
 import random
 from typing import Optional
-from bluff.check import CheckSet, check
-from bluff.sequence import SEQUENCE
+import logging
+
+from bluff.game.check import CheckSet, check
+from bluff.game.card import get_all_cards, get_sequence_hierarchy
+from bluff.game.player import Player
 
 
-_colors = ["spades", "clubs", "diamonds", "hearts"]
-_fig_int_to_str = {x: str(x) for x in range(9, 11)}
-_fig_int_to_str.update({11: "jack", 12: "queen", 13: "king", 14: "ace"})
-_all_cards = list(itertools.product(list(_fig_int_to_str.values()), _colors))
-_sequences_hierarchy = []
-_sequences_hierarchy += [
-    f"{SEQUENCE.HIGH_CARD} {_fig_int_to_str[figure]}" for figure in range(9, 15)
-]
-_sequences_hierarchy += [
-    f"{SEQUENCE.ONE_PAIR} {_fig_int_to_str[figure]}" for figure in range(9, 15)
-]
-_sequences_hierarchy += [
-    f"{SEQUENCE.TWO_PAIR} {_fig_int_to_str[figure]};{_fig_int_to_str[figure_2]}"
-    for figure in range(9, 15)
-    for figure_2 in range(9, figure)
-]
-_sequences_hierarchy += [
-    f"{SEQUENCE.SMALL_STRAIGHT}",
-    f"{SEQUENCE.BIG_STRAIGHT}",
-]
-_sequences_hierarchy += [
-    f"{SEQUENCE.THREE_OF_A_KIND} {_fig_int_to_str[figure]}"
-    for figure in range(9, 15)
-]
-_sequences_hierarchy += [
-    f"{SEQUENCE.FULL} {_fig_int_to_str[figure]};{_fig_int_to_str[figure_2]}"
-    for figure in range(9, 15)
-    for figure_2 in range(9, 15)
-    if figure != figure_2
-]
-_sequences_hierarchy += [f"{SEQUENCE.COLOR} {color}" for color in _colors]
-_sequences_hierarchy += [
-    f"{SEQUENCE.FOUR_OF_A_KIND} {_fig_int_to_str[figure]}"
-    for figure in range(9, 15)
-]
-_sequences_hierarchy += [f"{SEQUENCE.SMALL_POKER} {color}" for color in _colors]
-_sequences_hierarchy += [f"{SEQUENCE.BIG_POKER} {color}" for color in _colors]
+_sequences_hierarchy = get_sequence_hierarchy()
+_all_cards = get_all_cards()
+_logger = logging.getLogger(__name__)
 
 
-def get_sequence_hierarchy() -> list[str]:
-    """
-    Get sequence hierarchy.
-    """
-    return copy.deepcopy(_sequences_hierarchy)
-
-
-@dataclass()
-class Player:
-    """
-    Bluff game player.
-    """
-
-    sid: str
-    username: str
-    cards: set[tuple[str, str]]
-    number_of_cards: int = 0
-
-    def __str__(self):
-        return f"<SID: {self.sid}, USERNAME: {self.username}>"
-
-    def __hash__(self):
-        return (
-            int(hashlib.sha256(self.sid.encode("utf-8")).hexdigest(), 16)
-            % 10**8
-        )
-
-
-class Game:
+class GameHandler:
     """
     Game handler.
     """
@@ -89,14 +27,17 @@ class Game:
         self._current_player_index: Optional[int] = None
         self._player_sid_to_username: dict[str, int] = dict()
 
-    def reset(self) -> None:
+    def reset(self, reset_players: bool = True) -> None:
         self._all_starting_players = []
         self._cards_deck = self._shuffle()
         self._is_started = False
-        self._players = []
+
+        if reset_players:
+            self._players = []
+            self._player_sid_to_username = dict()
+
         self._current_guess_index = None
         self._current_player_index = None
-        self._player_sid_to_username = dict()
 
     @property
     def is_started(self) -> bool:
@@ -188,9 +129,16 @@ class Game:
         )
 
     def add_player(self, sid: str, username: str):
+        if sid in {player.sid for player in self._players}:
+            raise ValueError(f'SID "{sid}" already in the game.')
+
         self._players.append(Player(sid=sid, username=username, cards=set()))
 
     def remove_player(self, player: Player):
+        if player not in self._players:
+            _logger.warning(f'Player "{player}" not in the game.')
+            return
+
         player_index = self._players.index(player)
         self._players.remove(player)
 
