@@ -1,24 +1,24 @@
 from typing import Optional
 from bluff.game.handler import GameHandler
 from bluff.table.data import TableData
-from bluff.table.interface import Tables
+from bluff.table.interface import TablesManagerInterface
 
 
 _table_name_to_data: dict[str, TableData] = {}
 _sid_to_table_name: dict[str, str] = dict()
 
 
-class TablesInMemory(Tables):
+class TablesManagerInMemory(TablesManagerInterface):
     """
-    Table implementation that stores the table data in memory.
+    Tables manager implementation that stores the table data in memory.
     """
 
-    @classmethod
-    def get_table_data(cls, table_name: str) -> TableData:
+    @staticmethod
+    def get_table_data(table_name: str) -> Optional[TableData]:
         """
         Returns the table data for the given table name.
         """
-        return _table_name_to_data[table_name]
+        return _table_name_to_data.get(table_name, None)
 
     @staticmethod
     def add_table(table_data: TableData) -> None:

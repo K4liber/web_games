@@ -1,11 +1,12 @@
 import logging
+
 from flask import Flask, request
 from flask_socketio import SocketIO, emit
+
 from bluff.socket.common import deal_cards, send_turn_info
 from bluff.socket.main import get_username, load_main_endpoints, remove_user
 from bluff.table.data import TableData
-from bluff.table.in_memory import TablesInMemory
-
+from bluff.table import tables_manager
 from bluff.game.handler import GameHandler
 
 
@@ -25,13 +26,12 @@ socket = SocketIO(
     ],
 )
 load_main_endpoints(socket=socket)
-tables = TablesInMemory()
 
 
 @socket.on("start_bluff")
 def _start_bluff():
     sid = request.sid  # type: ignore[attr-defined]
-    table = tables.get_table_by_sid(sid=sid)
+    table = tables_manager.get_table_by_sid(sid=sid)
     game = table.game_handler
 
     if game.is_started:
@@ -87,7 +87,7 @@ def _handle_guess(selected_guess: str, game: GameHandler):
 @socket.on("selected")
 def _selected(selected_guess):
     sid = request.sid  # type: ignore[attr-defined]
-    table = tables.get_table_by_sid(sid=sid)
+    table = tables_manager.get_table_by_sid(sid=sid)
 
     if table is None:
         _logger("Table no longer exists.")
@@ -162,7 +162,7 @@ def _disconnect():
         _logger.warning(f"Unknown user: {request.sid}")
         return
 
-    table = tables.get_table_by_sid(sid)
+    table = tables_manager.get_table_by_sid(sid)
 
     if table is None:
         return
@@ -198,7 +198,7 @@ def _disconnect():
     game.remove_player(disconnected_player)
 
     if len(game.players) == 0:
-        tables.remove_table(table_name=table.name)
+        tables_manager.remove_table(table_name=table.name)
 
 
 @socket.on("create_game")
@@ -215,13 +215,13 @@ def _create_game(table_data):
         game_handler=game,
     )
     username = get_username(sid)
-    tables.add_table(table_data=table_data)
+    tables_manager.add_table(table_data=table_data)
     game.add_player(sid, username)
-    tables.add_user_to_table(table=table_data, sid=sid)
+    tables_manager.add_user_to_table(table=table_data, sid=sid)
     emit("join_succeess", [table_data.name, game.players_usernames], room=sid)
     emit(
         "games_list",
-        [table.dict for table in tables.get_tables()],
+        [table.dict for table in tables_manager.get_tables()],
         room=request.sid,
     )
 
@@ -231,7 +231,7 @@ def _join_game(table_name: str):
     sid = request.sid  # type: ignore[attr-defined]
     username = get_username(sid)
     _logger.info(f"Player {username} joining table: {table_name}")
-    table_data = tables.get_table_data(table_name)
+    table_data = tables_manager.get_table_data(table_name)
     game = table_data.game_handler
 
     if game.is_started:
@@ -245,7 +245,7 @@ def _join_game(table_name: str):
 
     game.add_player(sid=sid, username=username)
     _logger.info(f"Adding player: {sid}")
-    tables.add_user_to_table(table=table_data, sid=sid)
+    tables_manager.add_user_to_table(table=table_data, sid=sid)
     emit("join_succeess", [table_data.name, game.players_usernames], room=sid)
 
     for player in game.players:
@@ -258,7 +258,7 @@ def _join_game(table_name: str):
 @socket.on("leave")
 def _leave():
     sid = request.sid  # type: ignore[attr-defined]
-    table = tables.get_table_by_sid(sid)
+    table = tables_manager.get_table_by_sid(sid)
 
     if table is None:
         return
@@ -270,10 +270,10 @@ def _leave():
 
     if len(game.players) == 0:
         _logger.info(f'Removing table "{table.name}"')
-        tables.remove_table(table_name=table.name)
+        tables_manager.remove_table(table_name=table.name)
         emit(
             "games_list",
-            [table.dict for table in tables.get_tables()],
+            [table.dict for table in tables_manager.get_tables()],
             room=request.sid,
         )
     else:

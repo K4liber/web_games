@@ -1,13 +1,19 @@
 from abc import ABCMeta, abstractmethod
-from bluff.game.handler import GameHandler
+from typing import Optional
 
+from bluff.game.handler import GameHandler
 from bluff.table.data import TableData
 
 
-class Tables(metaclass=ABCMeta):
+class TablesManagerInterface(metaclass=ABCMeta):
     """
-    Class for managing tables.
+    Interface of tables manager.
     """
+
+    @staticmethod
+    @abstractmethod
+    def get_table_data(table_name: str) -> Optional[TableData]:
+        raise NotImplementedError
 
     @staticmethod
     @abstractmethod

@@ -4,11 +4,10 @@ from typing import Optional
 from flask import request
 from flask_socketio import emit
 
-from bluff.table.in_memory import TablesInMemory
+from bluff.table import tables_manager
 
 _sid_to_username: dict[str, str] = dict()
 _logger = logging.getLogger(__name__)
-tables = TablesInMemory()
 
 
 def load_main_endpoints(socket):
@@ -25,7 +24,7 @@ def load_main_endpoints(socket):
     @socket.on("notify")
     def _notify(user):
         sid = request.sid  # type: ignore[attr-defined]
-        table = tables.get_table_by_sid(sid=sid)
+        table = tables_manager.get_table_by_sid(sid=sid)
 
         if table is not None:
             for player in table.game_handler.players:
@@ -35,7 +34,7 @@ def load_main_endpoints(socket):
     @socket.on("message")
     def _on_data(data):
         sid = request.sid  # type: ignore[attr-defined]
-        table = tables.get_table_by_sid(sid=sid)
+        table = tables_manager.get_table_by_sid(sid=sid)
 
         if table is not None:
             for player in table.game_handler.players:
@@ -45,7 +44,7 @@ def load_main_endpoints(socket):
     def _get_games():
         emit(
             "games_list",
-            [table.dict for table in tables.get_tables()],
+            [table.dict for table in tables_manager.get_tables()],
             room=request.sid,
         )
 
