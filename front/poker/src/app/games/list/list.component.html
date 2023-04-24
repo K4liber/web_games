@@ -14,7 +14,10 @@
                 Started
             </td>
             <td>
-                
+                <button 
+                    (click)="refreshList()"
+                >Refresh
+                </button>
             </td>
         </tr>
         <ng-container *ngFor="let game of games">

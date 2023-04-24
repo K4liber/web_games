@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from bluff.game import Game
+from bluff.game.handler import GameHandler
 
 from bluff.table.data import TableData
 
@@ -26,5 +26,15 @@ class Tables(metaclass=ABCMeta):
 
     @staticmethod
     @abstractmethod
-    def get_game(table_name: str) -> Game:
+    def get_game(table_name: str) -> GameHandler:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def get_table_by_sid(sid: str) -> TableData:
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def add_user_to_table(table: TableData, sid: str) -> None:
         raise NotImplementedError

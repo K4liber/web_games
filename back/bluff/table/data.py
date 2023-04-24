@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, Any
 
-from bluff.game import Game
+from bluff.game.handler import GameHandler
 
 
 @dataclass
@@ -13,7 +13,7 @@ class TableData:
     name: str
     host: str
     is_public: bool
-    game: Game
+    game_handler: GameHandler
     password: Optional[str] = None
     max_players: int = 6
 
@@ -22,8 +22,10 @@ class TableData:
         return {
             "name": self.name,
             "host": self.host,
-            "players": [player.username for player in self.game.players],
+            "players": [
+                player.username for player in self.game_handler.players
+            ],
             "isPublic": self.is_public,
-            "isStarted": self.game.is_started,
+            "isStarted": self.game_handler.is_started,
             "maxNumberOfPlayers": self.max_players,
         }

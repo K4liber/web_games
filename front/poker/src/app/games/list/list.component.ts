@@ -66,4 +66,7 @@ export class ListComponent implements OnInit {
     this.gameService.currentGame = null
   }
 
+  refreshList() {
+    this.socket.emit('get_games')
+  }
 }

@@ -1,9 +1,11 @@
-from bluff.game import Game
+from typing import Optional
+from bluff.game.handler import GameHandler
 from bluff.table.data import TableData
 from bluff.table.interface import Tables
 
 
 _table_name_to_data: dict[str, TableData] = {}
+_sid_to_table_name: dict[str, str] = dict()
 
 
 class TablesInMemory(Tables):
@@ -40,5 +42,18 @@ class TablesInMemory(Tables):
         return list(_table_name_to_data.values())
 
     @staticmethod
-    def get_game(table_name: str) -> Game:
-        return _table_name_to_data[table_name].game
+    def get_game(table_name: str) -> GameHandler:
+        return _table_name_to_data[table_name].game_handler
+
+    @staticmethod
+    def get_table_by_sid(sid: str) -> Optional[TableData]:
+        table_name = _sid_to_table_name.get(sid, None)
+
+        if table_name is None:
+            return None
+
+        return _table_name_to_data.get(table_name, None)
+
+    @staticmethod
+    def add_user_to_table(table: TableData, sid: str) -> None:
+        _sid_to_table_name[sid] = table.name
