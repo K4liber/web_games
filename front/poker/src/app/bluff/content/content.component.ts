@@ -68,8 +68,13 @@ export class ContentComponent implements OnInit, OnChanges {
     private socket: SocketService,
     private gameService: GameService
   ) {
-    gameService.players.subscribe(players => {
+    this.gameService.players.subscribe(players => {
       this.players = players
+    })
+    this.gameService.gameChange.subscribe((game) => {
+      if (game === null) {
+        this.stopGame()
+      }
     })
   }
   
@@ -188,9 +193,9 @@ export class ContentComponent implements OnInit, OnChanges {
   }
 
   onReadyPlayers(players: string[]) {
-    if (players.length === 0) {
-      this.stopGame()
-    } else {
+    this.stopGame()
+
+    if (players.length > 0) {
       this.isGameReady = players.length >= 2
       this.players = players
     }

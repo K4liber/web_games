@@ -10,36 +10,7 @@ import { Game } from '../types';
 })
 export class ListComponent implements OnInit {
 
-  games: Game[] = [
-    {
-      name: 'Dota',
-      host: 'Jasiek',
-      players: [
-        'xd', 'anything'
-      ],
-      isPublic: true,
-      isStarted: false,
-      maxNumberOfPlayers: 6
-    },
-    {
-      name: 'test123',
-      host: 'Jasiek',
-      players: [],
-      isPublic: true,
-      isStarted: false,
-      maxNumberOfPlayers: 6
-    },
-    {
-      name: 'Any',
-      host: 'Jasiek',
-      players: [
-        'xd', 'anything', 'test', 'xd', 'anything', 'test'
-      ],
-      isPublic: true,
-      isStarted: false,
-      maxNumberOfPlayers: 6
-    }
-  ];
+  games: Game[] = [];
   gameService: GameService;
   currentView: string = 'list';
 
@@ -63,7 +34,7 @@ export class ListComponent implements OnInit {
 
   leaveGame(): void {
     this.socket.emit('leave')
-    this.gameService.currentGame = null
+    this.gameService.setGame(null)
   }
 
   refreshList() {

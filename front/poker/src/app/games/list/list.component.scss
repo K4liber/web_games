@@ -8,3 +8,8 @@
     width: 80px;
     text-align: right;
 }
+
+.games-list {
+    max-height: calc(100%);
+    overflow-y: auto;
+}

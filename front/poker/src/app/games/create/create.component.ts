@@ -48,7 +48,6 @@ export class CreateComponent implements OnInit {
   ngOnInit(): void {}
 
   onSubmit() {
-    console.log(this.gameForm.value);
     this.socket.emit('create_game', this.gameForm.value)
   }
   

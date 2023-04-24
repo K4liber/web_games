@@ -1,4 +1,4 @@
-<div>
+<div class="games-list">
     <table class="table">
         <tr>
             <td>
@@ -8,12 +8,12 @@
                 Public
             </td>
             <td>
-                Number of players
+                Players
             </td>
             <td>
                 Started
             </td>
-            <td>
+            <td class="actionButton">
                 <button 
                     (click)="refreshList()"
                 >Refresh
@@ -28,14 +28,16 @@
                 <td>{{game.isStarted}}</td>
                 <td class="actionButton">
                     <button 
-                    *ngIf="gameService.currentGame === null"
+                    *ngIf="gameService.getCurrentGame() === null"
                     (click)="joinGame(game.name)"
-                    [disabled]="game.players.length === game.maxNumberOfPlayers"
+                    [disabled]="gameService.getCurrentGame() !== null || 
+                        game.isStarted ||
+                        game.players.length === game.maxNumberOfPlayers"
                     >
                         Join
                     </button>
                     <button 
-                        *ngIf="gameService.currentGame === game.name"
+                        *ngIf="gameService.getCurrentGame() === game.name"
                         (click)="leaveGame()"
                     >
                         Leave

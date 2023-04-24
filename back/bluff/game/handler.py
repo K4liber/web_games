@@ -1,6 +1,8 @@
 import copy
 import random
 from typing import Optional
+import logging
+
 from bluff.game.check import CheckSet, check
 from bluff.game.card import get_all_cards, get_sequence_hierarchy
 from bluff.game.player import Player
@@ -8,6 +10,7 @@ from bluff.game.player import Player
 
 _sequences_hierarchy = get_sequence_hierarchy()
 _all_cards = get_all_cards()
+_logger = logging.getLogger(__name__)
 
 
 class GameHandler:
@@ -132,6 +135,10 @@ class GameHandler:
         self._players.append(Player(sid=sid, username=username, cards=set()))
 
     def remove_player(self, player: Player):
+        if player not in self._players:
+            _logger.warning(f'Player "{player}" not in the game.')
+            return
+
         player_index = self._players.index(player)
         self._players.remove(player)
 

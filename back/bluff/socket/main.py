@@ -24,11 +24,22 @@ def load_main_endpoints(socket):
 
     @socket.on("notify")
     def _notify(user):
-        emit("notify", user, broadcast=True, skip_sid=request.sid)
+        sid = request.sid  # type: ignore[attr-defined]
+        table = tables.get_table_by_sid(sid=sid)
 
-    @socket.on("data")
+        if table is not None:
+            for player in table.game_handler.players:
+                if player.sid != sid:
+                    emit("notify", user, room=player.sid)
+
+    @socket.on("message")
     def _on_data(data):
-        emit("returndata", data, broadcast=True)
+        sid = request.sid  # type: ignore[attr-defined]
+        table = tables.get_table_by_sid(sid=sid)
+
+        if table is not None:
+            for player in table.game_handler.players:
+                emit("onMessage", data, room=player.sid)
 
     @socket.on("get_games")
     def _get_games():

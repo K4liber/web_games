@@ -2,22 +2,17 @@
     <div
       class="vertical-center content-container"
     >
-      <app-login
-        (usernameChanged)="usernameChanged($event)"
-      ></app-login>
+      <app-login></app-login>
       <games-content
-        [username]="username"
         [doShow]="doShowGames"
       >
       </games-content>
       <bluff-content
-        [username]="username"
         [doShow]="doShowBluff"
         (myTurn)="myTurn($event)"
       >
       </bluff-content>
       <chat-content
-        [username]="username"
         [doShow]="doShowChat"
       ></chat-content>
       <app-last-settlement
@@ -30,26 +25,26 @@
         <button 
             (click)="selectView('games')"
             class="option4"
-            *ngIf="this.isLogged"
+            *ngIf="this.gameService.getUsername() !== null"
             [disabled]="currentView === 'games'"
         >Games</button>
         <button 
             (click)="selectView('table')"
             class="option4"
-            *ngIf="this.isLogged"
-            [disabled]="currentView === 'table' || this.gameService.currentGame === null"
+            *ngIf="this.gameService.getUsername() !== null"
+            [disabled]="currentView === 'table' || this.gameService.getCurrentGame() === null"
         >Table</button>
         <button 
               (click)="selectView('chat')"
               class="option4"
-              *ngIf="this.isLogged"
-              [disabled]="currentView === 'chat' || this.gameService.currentGame === null"
+              *ngIf="this.gameService.getUsername() !== null"
+              [disabled]="currentView === 'chat' || this.gameService.getCurrentGame() === null"
           >Chat</button>
         <button 
               (click)="selectView('last')"
               class="option4"
-              *ngIf="this.isLogged"
-              [disabled]="currentView === 'last' || this.gameService.currentGame === null"
+              *ngIf="this.gameService.getUsername() !== null"
+              [disabled]="currentView === 'last' || this.gameService.getCurrentGame() === null"
           >Previous</button>
       </div>
     </div>

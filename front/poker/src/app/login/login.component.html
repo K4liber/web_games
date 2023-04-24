@@ -1,6 +1,6 @@
 <div class="login-div">
     <input 
-        *ngIf="!isLogged"
+        *ngIf="gameService.getUsername() === null"
         type="text" 
         placeholder="Enter an username"
         [(ngModel)]="username" 
@@ -8,18 +8,18 @@
     >
     <div
         class="standard-space inline"
-        *ngIf="isLogged"
+        *ngIf="gameService.getUsername() !== null"
     >
-        Hello {{ username }}!
+        Hello {{ gameService.getUsername() }}!
     </div>
     <button 
-        *ngIf="!isLogged"
+        *ngIf="gameService.getUsername() === null"
         type="submit" 
         (click)="login()"
         class="standard-space"
     >Login</button>
     <button 
-        *ngIf="isLogged"
+        *ngIf="gameService.getUsername() !== null"
         type="submit"
         (click)="logout()"
         class="standard-space inline"

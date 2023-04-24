@@ -7,7 +7,6 @@ import { GameService } from 'src/app/game.service';
   styleUrls: ['./content.component.scss']
 })
 export class GamesContentComponent implements OnInit, OnChanges {
-  @Input() username: string = ''
   @Input() doShow : EventEmitter<boolean> | null = null;
 
   showContent: boolean = false;
@@ -18,6 +17,9 @@ export class GamesContentComponent implements OnInit, OnChanges {
     gameService: GameService
   ) { 
     this.gameService = gameService
+    this.gameService.gameChange.subscribe((game) => {
+      this.currentView = 'list'
+    })
   }
   
   ngOnChanges(changes: SimpleChanges): void {

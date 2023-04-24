@@ -10,8 +10,6 @@ import { GameService } from '../game.service';
 })
 export class GameComponent implements OnInit {
   gameService: GameService
-  isLogged: boolean = false;
-  username: string = '';
   currentView: string = 'games'
   doShowGames: EventEmitter<boolean> = new EventEmitter<boolean>();
   doShowBluff: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -33,9 +31,12 @@ export class GameComponent implements OnInit {
       'last': this.doShowLastSettlement
     }
     this.socket.on('join_succeess', (join_data: [string, string[]]) => {
-      this.gameService.currentGame = join_data[0]
+      this.gameService.setGame(join_data[0])
       this.gameService.players.emit(join_data[1])
       this.selectView('table')
+    })
+    this.gameService.usernameChange.subscribe(username => {
+      this.usernameChanged(username)
     })
   }
 
@@ -43,18 +44,15 @@ export class GameComponent implements OnInit {
     document.body.className = "main";
   }
 
-  usernameChanged(username: string) {
-    if (username.trim() === '') {
-      this.isLogged = false;
+  usernameChanged(username: string | null) {
+    if (username === null) {
       this.doShowBluff.emit(false)
       this.doShowChat.emit(false)
       this.doShowGames.emit(false)
     } else {
-      this.isLogged = true;
       this.doShowGames.emit(true)
     }
     
-    this.username = username
     this.changeDetectorRef.detectChanges()
   }
 

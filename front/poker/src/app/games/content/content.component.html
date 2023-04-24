@@ -3,10 +3,12 @@
     *ngIf="showContent"
 >
     <games-list
+        class="page"
         *ngIf="currentView === 'list'"
     >
     </games-list>
     <games-create
+        class="page"
         *ngIf="currentView === 'create'"
     >
     </games-create>
@@ -21,7 +23,7 @@
         <button 
             (click)="selectView('create')"
             class="option2"
-            [disabled]="currentView === 'create' || gameService.currentGame !== null"
+            [disabled]="currentView === 'create' || gameService.getCurrentGame() !== null"
         >Create</button>
     </div>
 </div>

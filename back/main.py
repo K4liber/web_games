@@ -88,6 +88,11 @@ def _handle_guess(selected_guess: str, game: GameHandler):
 def _selected(selected_guess):
     sid = request.sid  # type: ignore[attr-defined]
     table = tables.get_table_by_sid(sid=sid)
+
+    if table is None:
+        _logger("Table no longer exists.")
+        return
+
     game = table.game_handler
 
     if selected_guess == "check":
@@ -235,6 +240,7 @@ def _join_game(table_name: str):
 
     if len(game.players) >= table_data.max_players:
         _logger.info(f"Table {table_name} is full")
+        emit("error", "Table is full. Please refresh the list.", room=sid)
         return
 
     game.add_player(sid=sid, username=username)
@@ -243,6 +249,9 @@ def _join_game(table_name: str):
     emit("join_succeess", [table_data.name, game.players_usernames], room=sid)
 
     for player in game.players:
+        if player.sid != sid:
+            emit("notify", username + " joined!", room=player.sid)
+
         emit("ready_players", game.players_usernames, room=player.sid)
 
 

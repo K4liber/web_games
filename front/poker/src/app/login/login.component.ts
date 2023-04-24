@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { SocketService } from '../app-socket.service';
 import { GameService } from '../game.service';
 
@@ -22,21 +22,19 @@ import { GameService } from '../game.service';
   ]
 })
 export class LoginComponent implements OnInit {
+  gameService: GameService
   username: string = ''
-  isLogged: boolean = false;
 
-  @Output() usernameChanged = new EventEmitter<string>();
-  
   constructor(
     private socket: SocketService,
-    private gameService: GameService
+    gameService: GameService
   ) {
-
+    this.gameService = gameService
   }
 
   ngOnInit(): void {
     this.socket.on('connect', () => {
-      this.onConnect()
+      console.log('connected')
     })
     this.socket.on('disconnect', () => {
       this.onDisconnect()
@@ -44,29 +42,25 @@ export class LoginComponent implements OnInit {
   }
 
   onDisconnect() {
-    this.isLogged = false;
-    this.username = '';
-    this.usernameChanged.emit(this.username)
-  }
-
-  onConnect() {
-    this.socket.emit('notify', this.username + " joined!"); 
-    this.isLogged = true;
-    this.usernameChanged.emit(this.username)
+    this.gameService.setUsername(null);
   }
 
   login() {
-    if (this.username.trim().length > 1){
-        this.socket.connect();
-        this.socket.emit('username', this.username)
-    } else {
-        alert("Username should contain at least 2 signs!");
+    let username = this.username.trim()
+
+    if (username.length < 2) {
+      alert("Username should contain at least 2 signs!");
+      return;
     }
+
+    this.gameService.setUsername(username)
+    this.socket.connect();
+    this.socket.emit('username', username)
   }
 
   logout() {
-    this.gameService.username = null
-    this.gameService.currentGame = null
+    this.gameService.setUsername(null);
+    this.gameService.setGame(null)
     this.socket.disconnect()
   }
 
