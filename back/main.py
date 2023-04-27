@@ -152,53 +152,63 @@ def _selected(selected_guess):
     _handle_guess(selected_guess=selected_guess, game=game)
 
 
-@socket.on("disconnect")
-def _disconnect():
-    sid = request.sid  # type: ignore[attr-defined]
-    _logger.info(f"[DISCONNECT]: {sid}")
+def _on_leave(sid: str):
     username = get_username(sid)
 
     if username is None:
-        _logger.warning(f"Unknown user: {request.sid}")
+        _logger.warning(f"Unknown user: {sid}")
         return
 
+    _logger.info(f'Player "{username}" is leaving.')
     table = tables_manager.get_table_by_sid(sid)
 
     if table is None:
         return
 
+    _logger.info(f'Removing player "{username}" from table "{table.name}".')
     game = table.game_handler
-    disconnected_player = game.get_player_by_sid(request.sid)
-
-    if game.is_started and disconnected_player:
-        if len(game.players) == 2:
-            for player in game.players:
-                emit("ready_players", [], room=player.sid)
-
-            game.reset()
-        else:
-            game.remove_player(disconnected_player)
-            _logger.info(f"Player {username} have left.")
-            deal_cards()
-
-        info = f"Starting next round with {game.number_of_cards} cards in play!"
-
-        for player in game.players:
-            emit(
-                "player_disconnected",
-                username,
-                room=player.sid,
-            )
-            emit("progress", info, room=player.sid)
-
-    for player in game.players:
-        emit("user_disconnected", player.username, room=player.sid)
-
-    remove_user(sid)
+    disconnected_player = game.get_player_by_sid(sid)
     game.remove_player(disconnected_player)
 
+    for player in game.players:
+        emit("user_disconnected", username, room=player.sid)
+        emit(
+            "player_disconnected",
+            username,
+            room=player.sid,
+        )
+
+    if game.is_started and disconnected_player:
+        if len(game.players) < 2:
+            _logger.info(f'Reseting game "{table.name}".')
+            game.reset(reset_players=False)
+
+            for player in game.players:
+                emit("ready_players", game.players_usernames, room=player.sid)
+        else:
+            _logger.info(f'Starting next round game "{table.name}".')
+            info = (
+                f"Starting next round with {game.number_of_cards}              "
+                "   cards in play!"
+            )
+
+            for player in game.players:
+                emit("progress", info, room=player.sid)
+
+            deal_cards()
+
+    remove_user(sid)
+
     if len(game.players) == 0:
+        _logger.info(f'Removing table "{table.name}".')
         tables_manager.remove_table(table_name=table.name)
+
+
+@socket.on("disconnect")
+def _disconnect():
+    sid = request.sid  # type: ignore[attr-defined]
+    _logger.info(f"[DISCONNECT]: {sid}")
+    _on_leave(sid=sid)
 
 
 @socket.on("create_game")
@@ -267,29 +277,7 @@ def _join_game(table_name: str):
 @socket.on("leave")
 def _leave():
     sid = request.sid  # type: ignore[attr-defined]
-    table = tables_manager.get_table_by_sid(sid)
-
-    if table is None:
-        return
-
-    game = table.game_handler
-    player = game.get_player_by_sid(sid)
-    _logger.info(f'Player "{player.username}" leaving table "{table.name}"')
-    game.remove_player(player)
-
-    if len(game.players) == 0:
-        _logger.info(f'Removing table "{table.name}"')
-        tables_manager.remove_table(table_name=table.name)
-        emit(
-            "games_list",
-            [table.dict for table in tables_manager.get_tables()],
-            room=request.sid,
-        )
-    else:
-        game.reset(reset_players=False)
-
-        for player in game.players:
-            emit("ready_players", game.players_usernames, room=player.sid)
+    _on_leave(sid=sid)
 
 
 if __name__ == "__main__":
