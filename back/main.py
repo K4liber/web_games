@@ -90,7 +90,7 @@ def _selected(selected_guess):
     table = tables_manager.get_table_by_sid(sid=sid)
 
     if table is None:
-        _logger("Table no longer exists.")
+        _logger.warning("Table no longer exists.")
         return
 
     game = table.game_handler
@@ -203,12 +203,21 @@ def _disconnect():
 
 @socket.on("create_game")
 def _create_game(table_data):
-    _logger.info(f"Creating table: {table_data}")
+    _logger.info(f"Creating game: {table_data}")
     sid = request.sid  # type: ignore[attr-defined]
+    table_name = table_data["name"]
+    table = tables_manager.get_table_data(table_name=table_name)
+
+    if table is not None:
+        error_msg = f"Game {table_name} already exists."
+        _logger.info(error_msg)
+        emit("error", error_msg, room=sid)
+        return
+
     game = GameHandler()
     table_data = TableData(
         host=request.sid,
-        name=table_data["name"],
+        name=table_name,
         max_players=table_data["maxNumberOfPlayers"],
         password=table_data["password"],
         is_public=table_data["isPublic"],
