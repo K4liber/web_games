@@ -2,35 +2,42 @@ const UP = true
 const DOWN = false
 
 type SingletonOracleMemory = {
-    angle: number
-    spin: boolean
+    measurementAngle: number
+    spinAngle: number,
 }
 
 interface QuantumOracle {
-    getSpin(measurementAngle: number): boolean
+    getSpin(
+        measurementAngle: number
+    ): boolean
+}
+
+function toRadians(angle: number): number {
+    return angle * (Math.PI/180)
 }
 
 class SingletonOracle implements QuantumOracle{
 
     private memory: SingletonOracleMemory | null = null;
 
-    getSpin(measurementAngle: number): boolean {
+    getSpin(
+        measurementAngle: number
+    ): boolean {
         if (this.memory === null) {
             this.memory = {
-                angle: measurementAngle,
-                spin: Math.sin(Math.random() * 2 * Math.PI) > 0
+                measurementAngle: measurementAngle,
+                spinAngle: 360 * Math.random()
             }
-            return this.memory.spin
+            return Math.sin(toRadians(this.memory.spinAngle + this.memory.measurementAngle)) > 0
         } else {
-            let radians = Math.PI * (measurementAngle - this.memory.angle) / 180
-            let min = -1 + Math.cos(radians/2)**2
-            let random = Math.random()
-
-            if ((min + random) > 0) {
-                return this.memory.spin
-            } else {
-                return !this.memory.spin
+            let spinAngle = this.memory.spinAngle + 180 // Always differs in phase by PI
+            if (debug) {
+                console.log("1 measurement angle: " + this.memory.measurementAngle + ", 1 spin angle: " + this.memory.spinAngle)
+                console.log("1 spin sinus: " + Math.sin(toRadians(this.memory.spinAngle + this.memory.measurementAngle)))
+                console.log("2 measurement angle: " + measurementAngle + ", 2 spin angle: " + spinAngle)
+                console.log("2 spin sinus: " + Math.sin(toRadians(spinAngle + measurementAngle)))
             }
+            return (Math.sin(toRadians(spinAngle + measurementAngle)) * Math.sin(toRadians(this.memory.spinAngle + this.memory.measurementAngle))) > 0
         }
     }
 }
@@ -46,15 +53,21 @@ interface Paricle {
 class Photon implements Paricle {
     private spin: boolean | null = UnknownSpin;
     private quantumOracle: QuantumOracle | null = null;
+    private angleOnMeasurement: number | null = null;
+    private mesurementAngle: number | null = null;
 
     measureSpin(mesurementAngle: number): boolean {
         if (this.spin !== UnknownSpin) {
             return this.spin
         } else if (this.quantumOracle !== null) {
-            this.spin = this.quantumOracle.getSpin(mesurementAngle)
+            this.spin = this.quantumOracle.getSpin(
+                mesurementAngle
+            )
             return this.spin
         } else {
-            this.spin = Math.random() >= 0.5
+            this.mesurementAngle = mesurementAngle
+            this.angleOnMeasurement = 360 * Math.random()
+            this.spin = Math.sin(toRadians(this.angleOnMeasurement + this.mesurementAngle)) > 0
             return this.spin
         }
     }
@@ -104,11 +117,6 @@ class SpinMeasuringInstrument {
     }
 }
 
-const xDegrees = 0
-const yDegrees = 60
-const zDegrees = 120
-const vDegrees = 180
-const numberOfPairs = 100000
 
 const makeExperiment = (
     particleAMeasurementAngle: number,
@@ -174,17 +182,23 @@ const makeExperiment = (
     console.assert(Math.round(controlGroupResults) === 50)
     console.log('[Control group] random UP spins: ' + 100 * upSpinsControlGroup/numberOfPairs + '%')
     let results = 100.0 * theSameSpins/numberOfPairs
-    console.log('[Entanglement] results: ' + results + "%")
-    console.assert(Math.round(results) === expectedResult)
     console.log('[Entanglement] random UP spins: ' + 100 * upSpins/numberOfPairs + '%')
+    console.log('[Entanglement] results: ' + results + "%, expected = " + expectedResult + "%")
+    console.assert(Math.round(results) === expectedResult, "Wrong results for measurement degrees " + particleAMeasurementAngle + " and " + particleBMeasurementAngle)
 }
-
-makeExperiment(xDegrees, xDegrees, 100)
-makeExperiment(xDegrees, yDegrees, 75)
-makeExperiment(yDegrees, zDegrees, 75)  
-makeExperiment(xDegrees, zDegrees, 25)
-makeExperiment(yDegrees, vDegrees, 25)
-makeExperiment(xDegrees, vDegrees, 0)
+// Experiments settings
+const debug = false
+const xDegrees = 0
+const yDegrees = 60
+const zDegrees = 120
+const vDegrees = 180
+const numberOfPairs = 100000
+makeExperiment(xDegrees, xDegrees, 0)
+// makeExperiment(xDegrees, yDegrees, 25)
+// makeExperiment(yDegrees, zDegrees, 25)  
+// makeExperiment(xDegrees, zDegrees, 75)
+// makeExperiment(yDegrees, vDegrees, 75)
+// makeExperiment(xDegrees, vDegrees, 100)
 
 export {
     Photon,
