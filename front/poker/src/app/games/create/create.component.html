@@ -1,5 +1,8 @@
 <div class="create-container">
-    <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
+    <form 
+        [formGroup]="gameForm" 
+        (ngSubmit)="onSubmit()"
+    >
         <table class="table">
             <tr>
                 <td>
@@ -13,7 +16,21 @@
                         id="name" 
                         type="text" 
                         formControlName="name"
+                        required 
+                        minlength="2"
                     >
+                    <div 
+                        *ngIf="gameForm.get('name')?.errors?.['required']"
+                        class="form-error"
+                    >
+                        Name is required.
+                    </div>
+                    <div 
+                        *ngIf="gameForm.get('name')?.errors?.['minlength']"
+                        class="form-error"
+                    >
+                        Name must be at least 2 characters long.
+                    </div>
                 </td>
             </tr>
             <tr>
@@ -62,12 +79,35 @@
                         min="2"
                         max="6"
                         pattern="\d*"
+                        required
                     >
+                    <div 
+                        *ngIf="gameForm.get('maxNumberOfPlayers')?.errors?.['min']"
+                        class="form-error"
+                    >
+                        2 is the minimum number of players.
+                    </div>
+                    <div 
+                        *ngIf="gameForm.get('maxNumberOfPlayers')?.errors?.['max']"
+                        class="form-error"
+                    >
+                        6 is the maximum number of players.
+                    </div>
+                    <div 
+                        *ngIf="gameForm.get('maxNumberOfPlayers')?.errors?.['pattern']"
+                        class="form-error"
+                    >
+                        Value should be an integer.
+                    </div>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <button class="button" type="submit">Create</button>
+                    <button 
+                        class="button" 
+                        type="submit"
+                        [disabled]="!gameForm.valid"
+                    >Create</button>
                 </td>
             </tr>
         </table>
