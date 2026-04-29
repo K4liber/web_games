@@ -1,0 +1,23 @@
+[project]
+name = "bluff"
+version = "0.1.0"
+description = "Bluff Poker Web Game"
+authors = [{name = "Jan Bielecki", email = "janbielecki94@gmail.com"}]
+requires-python = "==3.9.*"
+dependencies = [
+    "flask==2.3.3",
+    "werkzeug==2.3.7",
+    "flask-socketio==5.3.4",
+    "gunicorn==21.2.0",
+    "eventlet==0.33.3",
+    "python-socketio==5.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.2.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
